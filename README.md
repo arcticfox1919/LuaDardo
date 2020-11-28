@@ -1,7 +1,14 @@
 # libd
-Lua interpreter by dart
+
+**Lua interpreter by dart**
 
 Example:
+
+```yaml
+dependencies:
+  libd:
+    git: https://github.com/arcticfox1919/libd.git
+```
 
 ```dart
 import 'package:libd/libd.dart';
