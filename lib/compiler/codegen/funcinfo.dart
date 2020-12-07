@@ -18,7 +18,7 @@ class LocVarInfo {
   int slot;
   int startPC;
   int endPC;
-  bool captured;
+  bool captured = false;
 }
 
 class FuncInfo {
@@ -142,7 +142,8 @@ class FuncInfo {
     }
     
     scopeLv--;
-    for (LocVarInfo locVar in locNames.values) {
+    var tmp = Map.from(locNames);
+    for (LocVarInfo locVar in tmp.values) {
       if (locVar.scopeLv > scopeLv) {
         // out of scope
         locVar.endPC = endPC;
@@ -163,7 +164,7 @@ class FuncInfo {
   }
 
   int addLocVar(String name, int startPC) {
-    LocVarInfo newVar = new LocVarInfo();
+    LocVarInfo newVar = LocVarInfo();
     newVar.name = name;
     newVar.prev = locNames[name];
     newVar.scopeLv = scopeLv;
@@ -203,7 +204,7 @@ class FuncInfo {
       if (parent.locNames.containsKey(name)) {
         LocVarInfo locVar = parent.locNames[name];
         int idx = upvalues.length;
-        UpvalInfo upval = new UpvalInfo();
+        UpvalInfo upval = UpvalInfo();
         upval.locVarSlot = locVar.slot;
         upval.upvalIndex = -1;
         upval.index = idx;
@@ -214,7 +215,7 @@ class FuncInfo {
       int uvIdx = parent.indexOfUpval(name);
       if (uvIdx >= 0) {
         int idx = upvalues.length;
-        UpvalInfo upval = new UpvalInfo();
+        UpvalInfo upval = UpvalInfo();
         upval.locVarSlot = -1;
         upval.upvalIndex = uvIdx;
         upval.index = idx;

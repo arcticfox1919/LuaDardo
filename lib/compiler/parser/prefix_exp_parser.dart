@@ -100,10 +100,10 @@ class PrefixExpParser {
         lexer.nextTokenOfKind(TokenKind.TOKEN_SEP_RPAREN);
         return args;
       case TokenKind.TOKEN_SEP_LCURLY: // ‘{’ [fieldlist] ‘}’
-        return List<Exp>(1)..add(ExpParser.parseTableConstructorExp(lexer));
+        return List<Exp>(1)..[0] = ExpParser.parseTableConstructorExp(lexer);
       default: // LiteralString
         Token str = lexer.nextTokenOfKind(TokenKind.TOKEN_STRING);
-        return List<Exp>(1)..add(StringExp.fromToken(str));
+        return List<Exp>(1)..[0] = StringExp.fromToken(str);
     }
   }
 

@@ -297,8 +297,8 @@ class StatParser {
     }
 
     return AssignStat(fdExp.lastLine,
-        List<Exp>(1)..add(fnExp),
-        List<Exp>(1)..add(fdExp));
+        List<Exp>(1)..[0] = fnExp,
+        List<Exp>(1)..[0] = fdExp);
   }
 
   // funcname ::= Name {‘.’ Name} [‘:’ Name]

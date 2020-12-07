@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
+import 'package:libd/stdlib/package_lib.dart';
 import 'package:sprintf/sprintf.dart';
 
 import '../number/lua_number.dart';
@@ -954,8 +955,9 @@ class LuaStateImpl implements LuaState, LuaVM{
     try {
       File file = File(filename);
       return load(file.readAsBytesSync(), "@" + filename, mode);
-    } catch (e) {
+    } catch (e,s) {
       print(e);
+      print(s);
       return ThreadStatus.lua_errfile;
     }
   }
@@ -978,8 +980,10 @@ class LuaStateImpl implements LuaState, LuaVM{
 
   @override
   void openLibs() {
-    Map<String, DartFunction> libs = <String, DartFunction>{};
-    libs["_G"] = BasicLib.openBaseLib;
+    Map<String, DartFunction> libs = <String, DartFunction>{
+      "_G":BasicLib.openBaseLib,
+      "package":PackageLib.openPackageLib
+    };
 
     libs.forEach((name, fun) {
       requireF(name, fun, true);
@@ -1006,7 +1010,6 @@ class LuaStateImpl implements LuaState, LuaVM{
   void pushFString(String fmt, [List<Object> a]) {
     var str = a == null?fmt:sprintf(fmt, a);
     pushString(str);
-    // pushString(String.format(fmt, a));
   }
 
   @override
@@ -1091,7 +1094,7 @@ class LuaStateImpl implements LuaState, LuaVM{
         default:
           LuaType tt = getMetafield(idx, "__name"); /* try name */
           String kind = tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
-          pushString("$kind: ${idx.hashCode}");
+          pushString("$kind: ${toPointer(idx).hashCode}");
           if (tt != LuaType.luaNil) {
             remove(-2); /* remove '__name' */
           }
