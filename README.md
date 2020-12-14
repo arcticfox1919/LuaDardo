@@ -1,6 +1,6 @@
 # libd
 
-**Lua interpreter by dart**
+**[Lua5.3](http://www.lua.org/manual/5.3/) interpreter by [dart](https://github.com/dart-lang/sdk)**
 
 Example:
 
