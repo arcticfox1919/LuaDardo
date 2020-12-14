@@ -27,3 +27,5 @@ end
   state.call(0, 0);
 }
 ```
+
+**For use in flutter, see [here](https://github.com/arcticfox1919/libd_flutter).**
