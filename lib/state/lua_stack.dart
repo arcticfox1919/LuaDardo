@@ -25,7 +25,7 @@ class LuaStack {
 
   void push(Object val) {
     if (slots.length > 10000) { // TODO
-      throw new StackOverflowError();
+      throw StackOverflowError();
     }
     slots.add(val);
   }

@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
-import 'package:libd/stdlib/package_lib.dart';
+import '../stdlib/package_lib.dart';
+import '../stdlib/string_lib.dart';
+import '../stdlib/table_lib.dart';
 import 'package:sprintf/sprintf.dart';
 
 import '../number/lua_number.dart';
@@ -982,7 +984,9 @@ class LuaStateImpl implements LuaState, LuaVM{
   void openLibs() {
     Map<String, DartFunction> libs = <String, DartFunction>{
       "_G":BasicLib.openBaseLib,
-      "package":PackageLib.openPackageLib
+      "package":PackageLib.openPackageLib,
+      "table":TableLib.openTableLib,
+      "string":StringLib.openStringLib
     };
 
     libs.forEach((name, fun) {
@@ -1079,7 +1083,7 @@ class LuaStateImpl implements LuaState, LuaVM{
           if (isInteger(idx)) {
             pushString("${toInteger(idx)}"); // todo
           } else {
-            pushString(sprintf("%g", toNumber(idx)));
+            pushString(sprintf("%g", [toNumber(idx)]));
           }
           break;
         case LuaType.luaString:
