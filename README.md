@@ -6,7 +6,7 @@ Example:
 
 ```yaml
 dependencies:
-  LuaDardo:
+  lua_dardo:
     git: https://github.com/arcticfox1919/LuaDardo.git
 ```
 
