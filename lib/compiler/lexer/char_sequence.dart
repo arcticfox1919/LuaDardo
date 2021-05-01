@@ -30,13 +30,6 @@ class CharSequence {
     return _str.substring(beginIndex + _pos, endIndex + _pos);
   }
 
-  // String find(RegExp pattern) {
-  //   var match = pattern.firstMatch(_str.substring(_pos));
-  //   return match?.group(0);
-  //   // Matcher matcher = pattern.matcher(this);
-  //   // return matcher.find() ? matcher.group(0) : null;
-  // }
-
   int get length => _str.length - _pos;
 
   String charAt(int index) {

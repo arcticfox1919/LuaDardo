@@ -4,11 +4,6 @@ import 'token.dart';
 
 /// 词法分析器
 class Lexer {
-  // static final reNewLine = RegExp("\r\n|\n\r|\n|\r");
-  // static final reIdentifier = RegExp("^[_\\d\\w]+");
-  // static final reNumber = RegExp("^0[xX][0-9a-fA-F]*(\\.[0-9a-fA-F]*)?([pP][+\\-]?[0-9]+)?|^[0-9]*(\\.[0-9]*)?([eE][+\\-]?[0-9]+)?");
-  // static final reShortStr = RegExp(r'''(^'(\\\\|\\'|\\\n|\\z\s*|[^'\n])*')|(^"(\\\\|\\"|\\\n|\\z\s*|[^"\n])*")''');
-  // static final reOpeningLongBracket = RegExp("^\\[=*\\[");
 
   /// 源码
   CharSequence chunk;
@@ -159,13 +154,6 @@ class Lexer {
           return Token(line, TokenKind.TOKEN_SEP_LBRACK, "[");
         else error("invalid long string delimiter");
 
-        // if (chunk.startsWith("[[") || chunk.startsWith("[=")) {
-        //   int sep = _skip_sep();
-        //   return  Token(line, TokenKind.TOKEN_STRING, readLongString(true, sep));
-        // } else {
-        //   chunk.next(1);
-        //   return  Token(line, TokenKind.TOKEN_SEP_LBRACK, "[");
-        // }
         break;
       case '\'':
       case '"':
@@ -184,10 +172,6 @@ class Lexer {
       return keywords.containsKey(id)
           ?  Token(line, keywords[id], id)
           :  Token(line, TokenKind.TOKEN_IDENTIFIER, id);
-      // String id = scanIdentifier();
-      // return keywords.containsKey(id)
-      //     ?  Token(line, keywords[id], id)
-      //     :  Token(line, TokenKind.TOKEN_IDENTIFIER, id);
     }
 
     return error("unexpected symbol near ${chunk.current}");
@@ -223,11 +207,6 @@ class Lexer {
         _buff.clear();
         return;
       }
-
-      // if (chunk.find(reOpeningLongBracket) != null) {
-      //   scanLongString();
-      //   return;
-      // }
     }
 
     // short comment
@@ -235,55 +214,6 @@ class Lexer {
       chunk.next(1);
     }
   }
-
-  // String scan(Pattern pattern) {
-  //   String token = chunk.find(pattern);
-  //   if (token == null) {
-  //     throw Exception("unreachable!");
-  //   }
-  //   chunk.next(token.length);
-  //   return token;
-  // }
-
-  // String scanLongString() {
-  //   String openingLongBracket = chunk.find(reOpeningLongBracket);
-  //   if (openingLongBracket == null) {
-  //     return error("invalid long string delimiter near '${chunk.substring(0, 2)}'");
-  //   }
-  //
-  //   String closingLongBracket = openingLongBracket.replaceAll("[", "]");
-  //   int closingLongBracketIdx = chunk.indexOf(closingLongBracket);
-  //   if (closingLongBracketIdx < 0) {
-  //     return error("unfinished long string or comment");
-  //   }
-  //
-  //   String str = chunk.substring(openingLongBracket.length, closingLongBracketIdx);
-  //   chunk.next(closingLongBracketIdx + closingLongBracket.length);
-  //
-  //   str = str.replaceAll(reNewLine, "\n");
-  //   // str = reNewLine.matcher(str).replaceAll("\n");
-  //   line += CharSequence.count(str, "\n");
-  //   if (str.startsWith("\n")) {
-  //     str = str.substring(1);
-  //   }
-  //
-  //   return str;
-  // }
-
-  // String scanShortString() {
-  //   String str = chunk.find(reShortStr);
-  //   if (str != null) {
-  //     chunk.next(str.length);
-  //     str = str.substring(1, str.length - 1);
-  //     if (str.indexOf('\\') >= 0) {
-  //       line += str.split(reNewLine).length-1;
-  //       // line += reNewLine.split(str).length - 1;
-  //       str = Escaper(str, this).escape();
-  //     }
-  //     return str;
-  //   }
-  //   return error("unfinished string");
-  // }
 
   void _save() {
     _buff.write(chunk.current);
@@ -467,10 +397,6 @@ class Lexer {
     return (chunk.current == s) ? count : (-count) - 1;
   }
 
-  // String scanIdentifier() {
-  //   return scan(reIdentifier);
-  // }
-
   String readNumeral() {
     String expo = "Ee";
     String first = chunk.current;
@@ -487,10 +413,6 @@ class Lexer {
     }
     return _buff.toString();
   }
-
-  // String scanNumber() {
-  //   return scan(reNumber);
-  // }
 
   int _line() {
     return cachedNextToken != null ? lineBackup : line;
