@@ -1,8 +1,12 @@
 # LuaDardo
 
+![logo](https://github.com/arcticfox1919/ImageHosting/blob/master/language_logo.png?raw=true)
+
+------
+
 A Lua virtual machine written in [Dart](https://github.com/dart-lang/sdk), which implements [Lua5.3](http://www.lua.org/manual/5.3/) support.
 
-Example:
+## Example:
 
 ```yaml
 dependencies:
