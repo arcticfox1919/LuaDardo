@@ -1,5 +1,5 @@
 class CharSequence {
-  String _str;
+  final String _str;
   int _pos;
 
   CharSequence(this._str) : this._pos = 0;
@@ -30,17 +30,23 @@ class CharSequence {
     return _str.substring(beginIndex + _pos, endIndex + _pos);
   }
 
-  String find(RegExp pattern) {
-    var match = pattern.firstMatch(_str.substring(_pos));
-    return match?.group(0);
-    // Matcher matcher = pattern.matcher(this);
-    // return matcher.find() ? matcher.group(0) : null;
-  }
+  // String find(RegExp pattern) {
+  //   var match = pattern.firstMatch(_str.substring(_pos));
+  //   return match?.group(0);
+  //   // Matcher matcher = pattern.matcher(this);
+  //   // return matcher.find() ? matcher.group(0) : null;
+  // }
 
   int get length => _str.length - _pos;
 
   String charAt(int index) {
-    return _str[index + _pos];
+    int i = index + _pos;
+    if(i>=_str.length) return '';
+    return _str[i];
+  }
+
+  get current {
+    return charAt(0);
   }
 
   // 是否是空白字符
@@ -65,6 +71,10 @@ class CharSequence {
     var code = c.codeUnitAt(0);
     // '0'~'9'
     return code >= 48 && code <= 57;
+  }
+
+  static bool isxDigit(String s) {
+    return int.tryParse(s, radix: 16) != null;
   }
 
   static bool isLetter(String c) {

@@ -6,7 +6,21 @@ bool testString(){
   try{
     LuaState state = newState();
     state.openLibs();
-    state.loadString('''
+    state.loadString(r'''
+--[[
+multi-line comments
+multi-line comments
+]]
+
+a = [[abc
+123]]
+b = [==[
+abc
+123]==]
+print(a)
+print(b)
+str = 'a string with "quotes" and \n new line\r\n'
+print(str)
 print(string.gsub("hello world", "(%w+)", "%1 %1"))
 print(string.len("abc"))
 print(string.byte("abcABC", 1, 6))

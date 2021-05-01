@@ -65,52 +65,52 @@ class Escaper{
 
   // \ddd
    void escapeDecSeq() {
-    String seq = rawStr.find(reDecEscapeSeq);
-    if (seq == null) {
-      reportInvalidEscapeSeq();
-    }
+    // String seq = rawStr.find(reDecEscapeSeq);
+    // if (seq == null) {
+    //   reportInvalidEscapeSeq();
+    // }
+    //
+    // try {
+    //   int d = int.parse(seq.substring(1));
+    //   if (d <= 0xFF) {
+    //     buf.writeCharCode(d);
+    //     rawStr.next(seq.length);
+    //     return;
+    //   }
+    // } catch (e) {}
 
-    try {
-      int d = int.parse(seq.substring(1));
-      if (d <= 0xFF) {
-        buf.writeCharCode(d);
-        rawStr.next(seq.length);
-        return;
-      }
-    } catch (e) {}
-
-    lexer.error("decimal escape too large near '$seq'");
+    // lexer.error("decimal escape too large near '$seq'");
   }
 
   // \xXX
    void escapeHexSeq() {
-    String seq = rawStr.find(reHexEscapeSeq);
-    if (seq == null) {
-      reportInvalidEscapeSeq();
-    }
-
-    int d = int.parse(seq.substring(2), radix: 16);
-    buf.writeCharCode(d);
-    rawStr.next(seq.length);
+    // String seq = rawStr.find(reHexEscapeSeq);
+    // if (seq == null) {
+    //   reportInvalidEscapeSeq();
+    // }
+    //
+    // int d = int.parse(seq.substring(2), radix: 16);
+    // buf.writeCharCode(d);
+    // rawStr.next(seq.length);
   }
 
   // \u{XXX}
    void escapeUnicodeSeq() {
-    String seq = rawStr.find(reUnicodeEscapeSeq);
-    if (seq == null) {
-      reportInvalidEscapeSeq();
-    }
+    // String seq = rawStr.find(reUnicodeEscapeSeq);
+    // if (seq == null) {
+    //   reportInvalidEscapeSeq();
+    // }
+    //
+    // try {
+    //   int d = int.parse(seq.substring(3, seq.length - 1), radix: 16);
+    //   if (d <= 0x10FFFF) {
+    //     buf.writeCharCode(d);
+    //     rawStr.next(seq.length);
+    //     return;
+    //   }
+    // } catch (e) {}
 
-    try {
-      int d = int.parse(seq.substring(3, seq.length - 1), radix: 16);
-      if (d <= 0x10FFFF) {
-        buf.writeCharCode(d);
-        rawStr.next(seq.length);
-        return;
-      }
-    } catch (e) {}
-
-    lexer.error("UTF-8 value too large near '$seq'");
+    // lexer.error("UTF-8 value too large near '$seq'");
   }
 
    void skipWhitespaces() {
