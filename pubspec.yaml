@@ -1,7 +1,7 @@
-name: libd
-description: Lua interpreter by dart
+name: lua_dardo
+description: A Lua virtual machine written in Dart, which implements Lua5.3 version support.
 version: 1.0.0
-homepage: https://github.com/arcticfox1919/libd
+homepage: https://github.com/arcticfox1919/LuaDardo.git
 
 environment:
   sdk: '>=2.9.3 <3.0.0'
