@@ -28,4 +28,4 @@ end
 }
 ```
 
-**For use in flutter, see [here](https://github.com/arcticfox1919/libd_flutter).**
+**For use in flutter, see [here](https://github.com/arcticfox1919/flutter_lua_dardo).**
