@@ -1,17 +1,17 @@
-# libd
+# LuaDardo
 
-**[Lua5.3](http://www.lua.org/manual/5.3/) interpreter by [Dart](https://github.com/dart-lang/sdk)**
+A Lua virtual machine written in [Dart](https://github.com/dart-lang/sdk), which implements [Lua5.3](http://www.lua.org/manual/5.3/) support.
 
 Example:
 
 ```yaml
 dependencies:
-  libd:
-    git: https://github.com/arcticfox1919/libd.git
+  LuaDardo:
+    git: https://github.com/arcticfox1919/LuaDardo.git
 ```
 
 ```dart
-import 'package:libd/libd.dart';
+import 'package:lua_dardo/lua.dart';
 
 
 void main(List<String> arguments) {
