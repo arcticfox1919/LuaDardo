@@ -21,7 +21,7 @@ import 'package:lua_dardo/lua.dart';
 void main(List<String> arguments) {
   LuaState state = newState();
   state.openLibs();
-  state.loadString('''
+  state.loadString(r'''
 a=10
 while( a < 20 ) do
    print("a value is", a)
