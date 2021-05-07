@@ -10,8 +10,7 @@ A Lua virtual machine written in [Dart](https://github.com/dart-lang/sdk), which
 
 ```yaml
 dependencies:
-  lua_dardo:
-    git: https://github.com/arcticfox1919/LuaDardo.git
+  lua_dardo: ^0.0.1
 ```
 
 ```dart
