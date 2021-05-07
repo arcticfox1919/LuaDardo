@@ -5,7 +5,7 @@ import '../api/lua_state.dart';
 import '../api/lua_type.dart';
 
 class BasicLib {
-  static final Map<String, DartFunction> _baseFuncs = {
+  static const Map<String, DartFunction> _baseFuncs = {
     "print": _basePrint,
     "assert": _baseAssert,
     "error": _baseError,

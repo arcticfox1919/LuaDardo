@@ -13,6 +13,6 @@ const lua_ridx_globals = 2;
 const lua_maxinteger = 1<<63 - 1;
 const lua_mininteger = -1 << 63;
 
-abstract class LuaState extends LuaBasicAPI with LuaAuxLib{
+abstract class LuaState extends LuaBasicAPI implements LuaAuxLib{
 
 }

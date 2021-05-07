@@ -12,7 +12,7 @@ const TAB_L = 4; /* length */
 const TAB_RW = (TAB_R | TAB_W); /* read/write */
 
 class TableLib {
-  static final Map<String, DartFunction> _tabFuncs = {
+  static const Map<String, DartFunction> _tabFuncs = {
     "move": tabMove,
     "insert": tabInsert,
     "remove": tabRemove,

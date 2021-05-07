@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
+import '../stdlib/math_lib.dart';
+
 import '../stdlib/package_lib.dart';
 import '../stdlib/string_lib.dart';
 import '../stdlib/table_lib.dart';
@@ -986,7 +988,8 @@ class LuaStateImpl implements LuaState, LuaVM{
       "_G":BasicLib.openBaseLib,
       "package":PackageLib.openPackageLib,
       "table":TableLib.openTableLib,
-      "string":StringLib.openStringLib
+      "string":StringLib.openStringLib,
+      "math":MathLib.openMathLib
     };
 
     libs.forEach((name, fun) {

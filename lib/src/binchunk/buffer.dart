@@ -411,6 +411,9 @@ class ByteDataReader {
   }
 
   Uint8List read(int length, {bool copy}) {
+    if (length == 0) {
+      return Uint8List(0);
+    }
     if (_queue.isEmpty || _queueCurrentLength - _offset < length) {
       throw StateError('Not enough bytes to read.');
     }

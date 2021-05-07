@@ -20,7 +20,7 @@ const lua_igmark = "-";
 class PackageLib {
   static final lua_dirsep = Platform.pathSeparator;
 
-  static final Map<String, DartFunction> _pkgFuncs = {
+  static const Map<String, DartFunction> _pkgFuncs = {
     "searchpath": _pkgSearchPath,
     /* placeholders */
     "preload": null,
@@ -30,7 +30,7 @@ class PackageLib {
     "loaded": null,
   };
 
-  static final Map<String, DartFunction> _llFuncs = {"require": _pkgRequire};
+  static const Map<String, DartFunction> _llFuncs = {"require": _pkgRequire};
 
   static int openPackageLib(LuaState ls) {
     ls.newLib(_pkgFuncs);

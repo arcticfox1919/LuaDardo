@@ -7,7 +7,7 @@ class StringLib {
   static final tagPattern =
       RegExp(r'%[ #+-0]?[0-9]*(\.[0-9]+)?[cdeEfgGioqsuxX%]');
 
-  static final Map<String, DartFunction> _strLib = {
+  static const Map<String, DartFunction> _strLib = {
     "len": strLen,
     "rep": strRep,
     "reverse": strReverse,
