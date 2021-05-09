@@ -161,13 +161,13 @@ class Lexer {
     }
 
     if (CharSequence.isDigit(chunk.current)) {
-      return  Token(line, TokenKind.TOKEN_NUMBER, readNumeral());
+      return Token(line, TokenKind.TOKEN_NUMBER, readNumeral());
     }
 
     if (chunk.current == '_' || CharSequence.isLetter(chunk.current)) {
       do {
         _save_and_next();
-      } while (CharSequence.isLetter(chunk.current) || chunk.current == '_');
+      } while (CharSequence.isalnum(chunk.current) || chunk.current == '_');
       String id = _buff.toString();
       return keywords.containsKey(id)
           ?  Token(line, keywords[id], id)

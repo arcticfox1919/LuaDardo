@@ -2,6 +2,7 @@
 
 import 'lua_aux_lib.dart';
 import 'lua_basic_api.dart';
+import '../state/lua_state_impl.dart';
 
 
 const lua_minstack = 20;
@@ -15,4 +16,8 @@ const lua_mininteger = -1 << 63;
 
 abstract class LuaState extends LuaBasicAPI implements LuaAuxLib{
 
+
+  static LuaState newState(){
+    return LuaStateImpl();
+  }
 }

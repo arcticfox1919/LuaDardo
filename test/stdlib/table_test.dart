@@ -4,9 +4,9 @@ import 'package:test/test.dart';
 
 bool testTable(){
   try{
-    LuaState state = newState();
+    LuaState state = LuaState.newState();
     state.openLibs();
-    state.loadString('''
+    state.loadString(r'''
 local arr = {"beta","alpha",}
 
 table.insert(arr,1, "zeta")

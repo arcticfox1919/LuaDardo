@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
+import 'package:lua_dardo/src/state/lua_userdata.dart';
+
 import '../stdlib/math_lib.dart';
 
 import '../stdlib/package_lib.dart';
@@ -173,6 +175,11 @@ class LuaStateImpl implements LuaState, LuaVM{
   }
 
   @override
+  bool isUserdata(int idx) {
+    return type(idx) == LuaType.luaUserdata;
+  }
+
+  @override
   void pop(int n) {
     for (int i = 0; i < n; i++) {
       _stack.pop();
@@ -278,6 +285,12 @@ class LuaStateImpl implements LuaState, LuaVM{
     } else {
       return null;
     }
+  }
+
+  @override
+  Userdata toUserdata<T>(int idx){
+    Object val = _stack.get(idx);
+    return val is Userdata ? val : null;
   }
 
   @override
@@ -450,6 +463,13 @@ class LuaStateImpl implements LuaState, LuaVM{
   @override
   void newTable() {
     createTable(0, 0);
+  }
+
+  @override
+  Userdata newUserdata<T>() {
+    var r = Userdata<T>();
+    _stack.push(r);
+    return r;
   }
 
   @override
@@ -781,7 +801,7 @@ class LuaStateImpl implements LuaState, LuaVM{
       while (_stack != caller) {
         _popLuaStack();
       }
-      _stack.push(e.getMessage()); // TODO
+      _stack.push("$e"); // TODO
       return ThreadStatus.lua_errrun;
     }
   }
@@ -926,6 +946,11 @@ class LuaStateImpl implements LuaState, LuaVM{
   }
 
   @override
+  LuaType getMetatableAux(String tname){
+    return getField(lua_registryindex, tname);
+  }
+
+  @override
   bool getSubTable(int idx, String fname) {
     if (getField(idx, fname) == LuaType.luaTable) {
       return true; /* table already there */
@@ -1039,6 +1064,12 @@ class LuaStateImpl implements LuaState, LuaVM{
   }
 
   @override
+  void setMetatableAux(String tname){
+    getMetatableAux(tname);
+    setMetatable(-2);
+  }
+
+  @override
   void setFuncs(Map<String, DartFunction> l, int nup) {
     checkStack2(nup, "too many upvalues");
     l.forEach((name, fun) {
@@ -1116,6 +1147,20 @@ class LuaStateImpl implements LuaState, LuaVM{
     return typeName(type(idx));
   }
 
+  @override
+  bool newMetatable(String tname){
+    if(getMetatableAux(tname) != LuaType.luaNil){ /* name already in use? */
+      return false; /* leave previous value on top, but return false */
+    }
+
+    pop(1);
+    createTable(0, 2);  /* create metatable */
+    pushString(tname);
+    setField(-2, "__name");  /* metatable.__name = tname */
+    pushValue(-1);
+    setField(lua_registryindex, tname);  /* registry.name = metatable */
+    return true;
+  }
 
   //**************************************************
   //******************** LuaVM ***********************
@@ -1202,6 +1247,7 @@ class LuaStateImpl implements LuaState, LuaVM{
       });
     }
   }
+
   //**************************************************
   //**************************************************
   //**************************************************

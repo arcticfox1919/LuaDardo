@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 bool testString(){
   try{
-    LuaState state = newState();
+    LuaState state = LuaState.newState();
     state.openLibs();
     state.loadString(r'''
 --[[

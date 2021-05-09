@@ -1,3 +1,5 @@
+import 'package:lua_dardo/src/state/lua_userdata.dart';
+
 import '../api/lua_type.dart';
 import '../number/lua_number.dart';
 import 'closure.dart';
@@ -18,6 +20,8 @@ class LuaValue {
       return LuaType.luaTable;
     } else if (val is Closure) {
       return LuaType.luaFunction;
+    } else if (val is Userdata){
+      return LuaType.luaUserdata;
     } else {
       throw Exception("TODO");
     }

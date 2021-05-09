@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 
 int callLuaAdd(int a,int b){
-  LuaState ls = newState();
+  LuaState ls = LuaState.newState();
   ls.openLibs();
   ls.doFile("test.lua");
   ls.getGlobal("test_add");

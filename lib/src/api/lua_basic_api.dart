@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import '../state/lua_userdata.dart';
+
 import 'lua_type.dart';
 
 abstract class LuaBasicAPI {
@@ -53,6 +55,8 @@ abstract class LuaBasicAPI {
 
   bool isDartFunction(int idx);
 
+  bool isUserdata(int idx);
+
   bool toBoolean(int idx);
 
   int toInteger(int idx);
@@ -68,6 +72,8 @@ abstract class LuaBasicAPI {
   DartFunction toDartFunction(int idx);
 
   Object toPointer(int idx);
+
+  Userdata toUserdata<T>(int idx);
 
   int rawLen(int idx);
 
@@ -99,6 +105,8 @@ abstract class LuaBasicAPI {
 
 /* get functions (Lua -> stack) */
   void newTable();
+
+  Userdata newUserdata<T>();
 
   void createTable(int nArr, int nRec);
 

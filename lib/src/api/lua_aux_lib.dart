@@ -48,6 +48,8 @@ abstract class LuaAuxLib {
 
   bool getSubTable(int idx, String fname);
 
+  LuaType getMetatableAux(String tname);
+
   LuaType getMetafield(int obj, String e);
 
   bool callMeta(int obj, String e);
@@ -59,6 +61,8 @@ abstract class LuaAuxLib {
   void newLib(Map<String, DartFunction> l);
 
   void newLibTable(Map<String, DartFunction> l);
+  bool newMetatable(String tname);
 
+  void setMetatableAux(String tname);
   void setFuncs(Map<String, DartFunction> l, int nup);
 }

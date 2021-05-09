@@ -10,7 +10,7 @@ A Lua virtual machine written in [Dart](https://github.com/dart-lang/sdk), which
 
 ```yaml
 dependencies:
-  lua_dardo: ^0.0.1
+  lua_dardo: ^0.0.2
 ```
 
 ```dart
@@ -18,7 +18,7 @@ import 'package:lua_dardo/lua.dart';
 
 
 void main(List<String> arguments) {
-  LuaState state = newState();
+  LuaState state = LuaState.newState();
   state.openLibs();
   state.loadString(r'''
 a=10
