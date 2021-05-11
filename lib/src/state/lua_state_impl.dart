@@ -457,7 +457,7 @@ class LuaStateImpl implements LuaState, LuaVM{
         }
       }
     }
-    throw Exception("not a table!"); // todo
+    throw Exception("${t.runtimeType}, not a table!"); // todo
   }
 
   @override
@@ -520,7 +520,7 @@ class LuaStateImpl implements LuaState, LuaVM{
         }
       }
     }
-    throw Exception("not a table!");
+    throw Exception("${t.runtimeType}, not a table!");
   }
 
 
@@ -1160,6 +1160,36 @@ class LuaStateImpl implements LuaState, LuaVM{
     pushValue(-1);
     setField(lua_registryindex, tname);  /* registry.name = metatable */
     return true;
+  }
+
+  int ref(int t){
+    int _ref;
+    if (isNil(-1)) {
+      pop(1);  /* remove from stack */
+      return -1;  /* 'nil' has a unique fixed reference */
+    }
+    t = absIndex(t);
+    rawGetI(t, 0);  /* get first free element */
+    _ref = toInteger(-1);  /* ref = t[freelist] */
+    pop(1);  /* remove it from stack */
+    if (_ref != 0) {  /* any free element? */
+      rawGetI(t, _ref);  /* remove it from list */
+      rawSetI(t, 0);  /* (t[freelist] = t[ref]) */
+    } else  /* no free elements */
+      _ref = rawLen(t) + 1;  /* get a new reference */
+
+    rawSetI(t, _ref);
+    return _ref;
+  }
+
+  void unRef (int t, int ref){
+    if (ref >= 0) {
+      t = absIndex(t);
+      rawGetI(t, 0);
+      rawSetI(t, ref);  /* t[ref] = t[freelist] */
+      pushInteger(ref);
+      rawSetI(t, 0);  /* t[freelist] = ref */
+    }
   }
 
   //**************************************************
