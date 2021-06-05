@@ -8,23 +8,23 @@ class StringLib {
       RegExp(r'%[ #+-0]?[0-9]*(\.[0-9]+)?[cdeEfgGioqsuxX%]');
 
   static const Map<String, DartFunction> _strLib = {
-    "len": strLen,
-    "rep": strRep,
-    "reverse": strReverse,
-    "lower": strLower,
-    "upper": strUpper,
-    "sub": strSub,
-    "byte": strByte,
-    "char": strChar,
-    "dump": strDump,
-    "format": strFormat,
-    "packsize": strPackSize,
-    "pack": strPack,
-    "unpack": strUnpack,
-    "find": strFind,
-    "match": strMatch,
-    "gsub": strGsub,
-    "gmatch": strGmatch,
+    "len": _strLen,
+    "rep": _strRep,
+    "reverse": _strReverse,
+    "lower": _strLower,
+    "upper": _strUpper,
+    "sub": _strSub,
+    "byte": _strByte,
+    "char": _strChar,
+    "dump": _strDump,
+    "format": _strFormat,
+    "packsize": _strPackSize,
+    "pack": _strPack,
+    "unpack": _strUnpack,
+    "find": _strFind,
+    "match": _strMatch,
+    "gsub": _strGsub,
+    "gmatch": _strGmatch,
   };
 
   static int openStringLib(LuaState ls) {
@@ -49,7 +49,7 @@ class StringLib {
 // string.len (s)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.len
 // lua-5.3.4/src/lstrlib.c#str_len()
-  static int strLen(LuaState ls) {
+  static int _strLen(LuaState ls) {
     String s = ls.checkString(1);
     ls.pushInteger(s.length);
     return 1;
@@ -58,7 +58,7 @@ class StringLib {
 // string.rep (s, n [, sep])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.rep
 // lua-5.3.4/src/lstrlib.c#str_rep()
-  static int strRep(LuaState ls) {
+  static int _strRep(LuaState ls) {
     String s = ls.checkString(1);
     int n = ls.checkInteger(2);
     String sep = ls.optString(3, "");
@@ -82,7 +82,7 @@ class StringLib {
 // string.reverse (s)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.reverse
 // lua-5.3.4/src/lstrlib.c#str_reverse()
-  static int strReverse(LuaState ls) {
+  static int _strReverse(LuaState ls) {
     String s = ls.checkString(1);
 
     var strLen = s.length;
@@ -100,7 +100,7 @@ class StringLib {
 // string.lower (s)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.lower
 // lua-5.3.4/src/lstrlib.c#str_lower()
-  static int strLower(LuaState ls) {
+  static int _strLower(LuaState ls) {
     String s = ls.checkString(1);
     ls.pushString(s.toLowerCase());
     return 1;
@@ -109,7 +109,7 @@ class StringLib {
 // string.upper (s)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.upper
 // lua-5.3.4/src/lstrlib.c#str_upper()
-  static int strUpper(LuaState ls) {
+  static int _strUpper(LuaState ls) {
     String s = ls.checkString(1);
     ls.pushString(s.toUpperCase());
     return 1;
@@ -118,7 +118,7 @@ class StringLib {
 // string.sub (s, i [, j])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.sub
 // lua-5.3.4/src/lstrlib.c#str_sub()
-  static int strSub(LuaState ls) {
+  static int _strSub(LuaState ls) {
     String s = ls.checkString(1);
     var sLen = s.length;
     var i = posRelat(ls.checkInteger(2), sLen);
@@ -143,7 +143,7 @@ class StringLib {
 // string.byte (s [, i [, j]])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.byte
 // lua-5.3.4/src/lstrlib.c#str_byte()
-  static int strByte(LuaState ls) {
+  static int _strByte(LuaState ls) {
     String s = ls.checkString(1);
     var sLen = s.length;
     var i = posRelat(ls.optInteger(2, 1), sLen);
@@ -175,7 +175,7 @@ class StringLib {
 // string.char (···)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.char
 // lua-5.3.4/src/lstrlib.c#str_char()
-  static int strChar(LuaState ls) {
+  static int _strChar(LuaState ls) {
     var nArgs = ls.getTop();
 
     // s = make([]byte, nArgs)
@@ -193,7 +193,7 @@ class StringLib {
 // string.dump (function [, strip])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.dump
 // lua-5.3.4/src/lstrlib.c#str_dump()
-  static int strDump(LuaState ls) {
+  static int _strDump(LuaState ls) {
     throw Exception("todo: strDump!");
   }
 
@@ -201,7 +201,7 @@ class StringLib {
 
 // string.packsize (fmt)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.packsize
-  static int strPackSize(LuaState ls) {
+  static int _strPackSize(LuaState ls) {
     var fmt = ls.checkString(1);
     if (fmt == "j") {
       ls.pushInteger(8); // todo
@@ -213,13 +213,13 @@ class StringLib {
 
 // string.pack (fmt, v1, v2, ···)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.pack
-  static int strPack(LuaState ls) {
+  static int _strPack(LuaState ls) {
     throw Exception("todo: strPack!");
   }
 
 // string.unpack (fmt, s [, pos])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.unpack
-  static int strUnpack(LuaState ls) {
+  static int _strUnpack(LuaState ls) {
     throw Exception("todo: strUnpack!");
   }
 
@@ -227,7 +227,7 @@ class StringLib {
 
 // string.format (formatstring, ···)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.format
-  static int strFormat(LuaState ls) {
+  static int _strFormat(LuaState ls) {
     var fmtStr = ls.checkString(1);
     if (fmtStr.length <= 1 || fmtStr.indexOf('%') < 0) {
       ls.pushString(fmtStr);
@@ -313,7 +313,7 @@ class StringLib {
 
 // string.find (s, pattern [, init [, plain]])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.find
-  static int strFind(LuaState ls) {
+  static int _strFind(LuaState ls) {
     var s = ls.checkString(1);
     var sLen = s.length;
     var pattern = ls.checkString(2);
@@ -366,7 +366,7 @@ class StringLib {
 
 // string.match (s, pattern [, init])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.match
-  static int strMatch(LuaState ls) {
+  static int _strMatch(LuaState ls) {
     var s = ls.checkString(1);
     var sLen = s.length;
     var pattern = ls.checkString(2);
@@ -405,7 +405,7 @@ class StringLib {
 
 // string.gsub (s, pattern, repl [, n])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.gsub
-  static int strGsub(LuaState ls) {
+  static int _strGsub(LuaState ls) {
     var s = ls.checkString(1);
     var pattern = ls.checkString(2);
     var repl = ls.checkString(3); // todo
@@ -450,7 +450,7 @@ class StringLib {
 
 // string.gmatch (s, pattern)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.gmatch
-  static int strGmatch(LuaState ls) {
+  static int _strGmatch(LuaState ls) {
     var s = ls.checkString(1);
     var pattern = ls.checkString(2);
 

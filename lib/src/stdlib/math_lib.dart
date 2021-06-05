@@ -1,5 +1,4 @@
 
-import 'dart:ffi';
 import 'dart:math' as math;
 import '../../lua.dart';
 

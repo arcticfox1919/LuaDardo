@@ -13,13 +13,13 @@ const TAB_RW = (TAB_R | TAB_W); /* read/write */
 
 class TableLib {
   static const Map<String, DartFunction> _tabFuncs = {
-    "move": tabMove,
-    "insert": tabInsert,
-    "remove": tabRemove,
-    "sort": tabSort,
-    "concat": tabConcat,
-    "pack": tabPack,
-    "unpack": tabUnpack,
+    "move": _tabMove,
+    "insert": _tabInsert,
+    "remove": _tabRemove,
+    "sort": _tabSort,
+    "concat": _tabConcat,
+    "pack": _tabPack,
+    "unpack": _tabUnpack,
   };
 
   static int openTableLib(LuaState ls) {
@@ -30,7 +30,7 @@ class TableLib {
   // table.move (a1, f, e, t [,a2])
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.move
 // lua-5.3.4/src/ltablib.c#tremove()
-  static int tabMove(LuaState ls) {
+  static int _tabMove(LuaState ls) {
     var f = ls.checkInteger(2);
     var e = ls.checkInteger(3);
     var t = ls.checkInteger(4);
@@ -66,7 +66,7 @@ class TableLib {
 // table.insert (list, [pos,] value)
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.insert
 // lua-5.3.4/src/ltablib.c#tinsert()
-  static int tabInsert(LuaState ls) {
+  static int _tabInsert(LuaState ls) {
     var e = _auxGetN(ls, 1, TAB_RW) + 1; /* first empty element */
     int pos; /* where to insert new element */
     switch (ls.getTop()) {
@@ -95,7 +95,7 @@ class TableLib {
 // table.remove (list [, pos])
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.remove
 // lua-5.3.4/src/ltablib.c#tremove()
-  static int tabRemove(LuaState ls) {
+  static int _tabRemove(LuaState ls) {
     var size = _auxGetN(ls, 1, TAB_RW);
     var pos = ls.optInteger(2, size);
     if (pos != size) {
@@ -115,7 +115,7 @@ class TableLib {
 // table.concat (list [, sep [, i [, j]]])
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.concat
 // lua-5.3.4/src/ltablib.c#tconcat()
-  static int tabConcat(LuaState ls) {
+  static int _tabConcat(LuaState ls) {
     var tabLen = _auxGetN(ls, 1, TAB_R);
     var sep = ls.optString(2, "");
     var i = ls.optInteger(3, 1);
@@ -177,7 +177,7 @@ class TableLib {
 // table.pack (···)
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.pack
 // lua-5.3.4/src/ltablib.c#pack()
-  static int tabPack(LuaState ls) {
+  static int _tabPack(LuaState ls) {
     var n = ls.getTop(); /* number of elements to pack */
     ls.createTable(n, 1); /* create result table */
     ls.insert(1); /* put it at index 1 */
@@ -193,7 +193,7 @@ class TableLib {
 // table.unpack (list [, i [, j]])
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.unpack
 // lua-5.3.4/src/ltablib.c#unpack()
-  static int tabUnpack(LuaState ls) {
+  static int _tabUnpack(LuaState ls) {
     var i = ls.optInteger(2, 1);
     var e = ls.optInteger(3, ls.len2(1));
     if (i > e) {
@@ -218,7 +218,7 @@ class TableLib {
 
 // table.sort (list [, comp])
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.sort
-  static int tabSort(LuaState ls) {
+  static int _tabSort(LuaState ls) {
     var sort = _SortHelper(ls);
     var len = sort.len();
     ls.argCheck(len < MAX_LEN, 1, "array too big");

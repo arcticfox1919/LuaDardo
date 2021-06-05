@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'dart:io';
 
 import 'package:lua_dardo/src/state/lua_userdata.dart';
+import 'package:lua_dardo/src/stdlib/os_lib.dart';
 
 import '../stdlib/math_lib.dart';
 
@@ -1014,7 +1015,8 @@ class LuaStateImpl implements LuaState, LuaVM{
       "package":PackageLib.openPackageLib,
       "table":TableLib.openTableLib,
       "string":StringLib.openStringLib,
-      "math":MathLib.openMathLib
+      "math":MathLib.openMathLib,
+      "os":OSLib.openOSLib
     };
 
     libs.forEach((name, fun) {
