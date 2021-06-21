@@ -570,6 +570,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
     // create new lua stack
     LuaStack newStack = LuaStack(/*nRegs + 20*/);
+    newStack.state = this;
     newStack.closure = c;
 
     // pass args, pop func
