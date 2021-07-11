@@ -302,7 +302,9 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   LuaType type(int idx) {
-    return _stack.isValid(idx) ? LuaValue.typeOf(_stack.get(idx)) : LuaType.luaNone;
+    return _stack.isValid(idx)
+        ? LuaValue.typeOf(_stack.get(idx))
+        : LuaType.luaNone;
   }
 
   @override
@@ -344,7 +346,9 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   void arith(ArithOp op) {
     Object b = _stack.pop();
-    Object a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot ? _stack.pop() : b;
+    Object a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot
+        ? _stack.pop()
+        : b;
     Object result = Arithmetic.arith(a, b, op, this);
     if (result != null) {
       _stack.push(result);
@@ -632,8 +636,9 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   ThreadStatus load(Uint8List chunk, String chunkName, String mode) {
-    Prototype proto =
-        BinaryChunk.isBinaryChunk(chunk) ? BinaryChunk.undump(chunk) : Compiler.compile(utf8.decode(chunk), chunkName);
+    Prototype proto = BinaryChunk.isBinaryChunk(chunk)
+        ? BinaryChunk.undump(chunk)
+        : Compiler.compile(utf8.decode(chunk), chunkName);
     Closure closure = Closure(proto);
     _stack.push(closure);
     if (proto.upvalues.length > 0) {
@@ -920,12 +925,14 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool doFile(String filename) {
-    return loadFile(filename) == ThreadStatus.lua_ok && pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
+    return loadFile(filename) == ThreadStatus.lua_ok &&
+        pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
   }
 
   @override
   bool doString(String str) {
-    return loadString(str) == ThreadStatus.lua_ok && pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
+    return loadString(str) == ThreadStatus.lua_ok &&
+        pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
   }
 
   @override
@@ -1140,8 +1147,10 @@ class LuaStateImpl implements LuaState, LuaVM {
           pushString("nil");
           break;
         default:
-          LuaType tt = getMetafield(idx, "__name"); /* try name */
-          String kind = tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
+          LuaType tt = getMetafield(idx, "__name");
+          /* try name */
+          String kind =
+              tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
           pushString("$kind: ${toPointer(idx).hashCode}");
           if (tt != LuaType.luaNil) {
             remove(-2); /* remove '__name' */
@@ -1187,8 +1196,10 @@ class LuaStateImpl implements LuaState, LuaVM {
       /* any free element? */
       rawGetI(t, _ref); /* remove it from list */
       rawSetI(t, 0); /* (t[freelist] = t[ref]) */
-    } else /* no free elements */
-      _ref = rawLen(t) + 1; /* get a new reference */
+    } else
+      /* no free elements */
+      _ref = rawLen(t) + 1;
+    /* get a new reference */
 
     rawSetI(t, _ref);
     return _ref;
@@ -1265,7 +1276,8 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void loadVararg(int n) {
-    List<Object> varargs = _stack.varargs != null ? _stack.varargs : const <Object>[];
+    List<Object> varargs =
+        _stack.varargs != null ? _stack.varargs : const <Object>[];
     if (n < 0) {
       n = varargs.length;
     }
@@ -1292,7 +1304,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     }
   }
 
-  //**************************************************
-  //**************************************************
-  //**************************************************
+//**************************************************
+//**************************************************
+//**************************************************
 }
