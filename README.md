@@ -32,3 +32,16 @@ end
 ```
 
 **For use in flutter, see [here](https://github.com/arcticfox1919/flutter_lua_dardo).**
+
+------
+一些中文资料：
+
+[Flutter 热更新及动态UI生成](https://arcticfox.blog.csdn.net/article/details/116681188)
+
+[Lua 15分钟快速上手（上）](https://arcticfox.blog.csdn.net/article/details/119516215)
+
+[Lua 15分钟快速上手（下）](https://arcticfox.blog.csdn.net/article/details/119535814)
+
+[Lua与C语言的互相调用](https://arcticfox.blog.csdn.net/article/details/119544987)
+
+[LuaDardo中Dart与Lua的相互调用](https://arcticfox.blog.csdn.net/article/details/119582403)
