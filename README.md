@@ -31,6 +31,44 @@ end
 }
 ```
 
+## Try on Flutter
+
+![](https://gitee.com/arcticfox1919/ImageHosting/raw/master/img/GIF_2021-5-11_21-44-49.gif)
+
+```lua
+function getContent1()
+    return Row:new({
+        children={
+            GestureDetector:new({
+                onTap=function()
+                    flutter.debugPrint("--------------onTap--------------")
+                end,
+
+                child=Text:new("click here")}),
+            Text:new("label1"),
+            Text:new("label2"),
+            Text:new("label3"),
+        },
+        mainAxisAlign=MainAxisAlign.spaceEvenly,
+    })
+end
+
+function getContent2()
+    return Column:new({
+        children={
+            Row:new({
+                children={Text:new("Hello"),Text:new("Flutter")},
+                mainAxisAlign=MainAxisAlign.spaceAround
+            }),
+            Image:network('https://gitee.com/arcticfox1919/ImageHosting/raw/master/img/flutter_lua_test.png'
+                ,{fit=BoxFit.cover})
+        },
+        mainAxisSize=MainAxisSize.min,
+        crossAxisAlign=CrossAxisAlign.center
+    })
+end
+```
+
 **For use in flutter, see [here](https://github.com/arcticfox1919/flutter_lua_dardo).**
 
 ------
