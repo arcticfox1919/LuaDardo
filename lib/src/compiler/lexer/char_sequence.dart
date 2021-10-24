@@ -77,6 +77,7 @@ class CharSequence {
   }
 
   static bool isalnum(String c) {
+    if(c.isEmpty) return false;
     var code = c.codeUnitAt(0);
     // '0'~'9' or a~z or A~Z
     return code >= 48 && code <= 57 ||

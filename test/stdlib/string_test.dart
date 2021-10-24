@@ -33,7 +33,7 @@ print(string.find("8Abc%a23", "%a", 1, true))
 print(string.find("8Abca23", "Ab"))
 print(string.match("abc123ABC456", "ABC"))
 ''');
-    state.call(0, 0);
+    state.pCall(0, 0, 1);
   }catch(e,s){
     print('$e\n$s');
     return false;

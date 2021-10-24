@@ -24,7 +24,7 @@ local a1 = {"a","b","c","d"}
 table.move(a1 ,1,#a1,4)
 print(table.concat(a1, ",")) 
 ''');
-    state.call(0, 0);
+    state.pCall(0, 0, 1);
   }catch(e,s){
     print('$e\n$s');
     return false;
