@@ -13,7 +13,7 @@ class BlockProcessor {
       StatProcessor.processStat(fi, stat);
     }
 
-    if (node.retExps != null) {
+    if (node.retExps.isNotEmpty) {
       processRetStat(fi, node.retExps, node.lastLine);
     }
   }
@@ -27,15 +27,15 @@ class BlockProcessor {
 
     if (nExps == 1) {
       if (exps[0] is NameExp) {
-        NameExp nameExp = exps[0];
-        int r = fi.slotOfLocVar(nameExp.name);
+        NameExp nameExp = exps[0] as NameExp;
+        int r = fi.slotOfLocVar(nameExp.name)!;
         if (r >= 0) {
           fi.emitReturn(lastLine, r, 1);
           return;
         }
       }
       if (exps[0] is FuncCallExp) {
-        FuncCallExp fcExp = exps[0];
+        FuncCallExp fcExp = exps[0] as FuncCallExp;
         int r = fi.allocReg();
         ExpProcessor.processTailCallExp(fi, fcExp, r);
         fi.freeReg();

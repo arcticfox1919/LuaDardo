@@ -12,19 +12,21 @@ class Block extends Node {
   List<Stat> stats;
   List<Exp> retExps;
 
+  Block({required this.stats,required this.retExps});
+
 
   @override
   String toString() {
     var sb = StringBuffer();
     sb.writeln('{');
-    if(stats != null && stats.isNotEmpty){
+    if(stats.isNotEmpty){
       sb.write('Stats:[');
       for(var stat in stats){
         _statToStr(stat,sb);
       }
       sb.write(']');
     }
-    if(retExps != null && retExps.isNotEmpty){
+    if(retExps.isNotEmpty){
       sb.write(',\nRetExps:[');
       for(var exp in retExps){
         _expToStr(exp,sb);

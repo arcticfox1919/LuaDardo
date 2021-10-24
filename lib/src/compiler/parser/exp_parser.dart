@@ -11,7 +11,7 @@ class ExpParser {
 
   // explist ::= exp {‘,’ exp}
   static List<Exp> parseExpList(Lexer lexer) {
-    List<Exp> exps =  List<Exp>();
+    List<Exp> exps =  <Exp>[];
     exps.add(parseExp(lexer));
     while (lexer.LookAhead() == TokenKind.TOKEN_SEP_COMMA) {
       lexer.nextToken();
@@ -49,7 +49,7 @@ class ExpParser {
    static Exp parseExp12(Lexer lexer) {
     Exp exp = parseExp11(lexer);
     while (lexer.LookAhead() == TokenKind.TOKEN_OP_OR) {
-      Token op = lexer.nextToken();
+      Token op = lexer.nextToken()!;
       BinopExp lor = BinopExp(op, exp, parseExp11(lexer));
       exp = Optimizer.optimizeLogicalOr(lor);
     }
@@ -60,7 +60,7 @@ class ExpParser {
    static Exp parseExp11(Lexer lexer) {
     Exp exp = parseExp10(lexer);
     while (lexer.LookAhead() == TokenKind.TOKEN_OP_AND) {
-      Token op = lexer.nextToken();
+      Token op = lexer.nextToken()!;
       BinopExp land = BinopExp(op, exp, parseExp10(lexer));
       exp = Optimizer.optimizeLogicalAnd(land);
     }
@@ -78,7 +78,7 @@ class ExpParser {
         case TokenKind.TOKEN_OP_LE:
         case TokenKind.TOKEN_OP_GE:
         case TokenKind.TOKEN_OP_EQ:
-          Token op = lexer.nextToken();
+          Token op = lexer.nextToken()!;
           exp = BinopExp(op, exp, parseExp9(lexer));
           break;
         default:
@@ -91,7 +91,7 @@ class ExpParser {
    static Exp parseExp9(Lexer lexer) {
     Exp exp = parseExp8(lexer);
     while (lexer.LookAhead() == TokenKind.TOKEN_OP_BOR) {
-      Token op = lexer.nextToken();
+      Token op = lexer.nextToken()!;
       BinopExp bor = BinopExp(op, exp, parseExp8(lexer));
       exp = Optimizer.optimizeBitwiseBinaryOp(bor);
     }
@@ -102,7 +102,7 @@ class ExpParser {
    static Exp parseExp8(Lexer lexer) {
     Exp exp = parseExp7(lexer);
     while (lexer.LookAhead() == TokenKind.TOKEN_OP_WAVE) {
-      Token op = lexer.nextToken();
+      Token op = lexer.nextToken()!;
       BinopExp bxor = BinopExp(op, exp, parseExp7(lexer));
       exp = Optimizer.optimizeBitwiseBinaryOp(bxor);
     }
@@ -113,7 +113,7 @@ class ExpParser {
    static Exp parseExp7(Lexer lexer) {
     Exp exp = parseExp6(lexer);
     while (lexer.LookAhead() == TokenKind.TOKEN_OP_BAND) {
-      Token op = lexer.nextToken();
+      Token op = lexer.nextToken()!;
       BinopExp band = BinopExp(op, exp, parseExp6(lexer));
       exp = Optimizer.optimizeBitwiseBinaryOp(band);
     }
@@ -127,7 +127,7 @@ class ExpParser {
       switch (lexer.LookAhead()) {
         case TokenKind.TOKEN_OP_SHL:
         case TokenKind.TOKEN_OP_SHR:
-          Token op = lexer.nextToken();
+          Token op = lexer.nextToken()!;
           BinopExp shx = BinopExp(op, exp, parseExp5(lexer));
           exp = Optimizer.optimizeBitwiseBinaryOp(shx);
           break;
@@ -144,11 +144,11 @@ class ExpParser {
       return exp;
     }
 
-    List<Exp> exps = List<Exp>();
+    List<Exp> exps = <Exp>[];
     exps.add(exp);
     int line = 0;
     while (lexer.LookAhead() == TokenKind.TOKEN_OP_CONCAT) {
-      line = lexer.nextToken().line;
+      line = lexer.nextToken()!.line;
       exps.add(parseExp4(lexer));
     }
     return ConcatExp(line, exps);
@@ -161,7 +161,7 @@ class ExpParser {
       switch (lexer.LookAhead()) {
         case TokenKind.TOKEN_OP_ADD:
         case TokenKind.TOKEN_OP_MINUS:
-          Token op = lexer.nextToken();
+          Token op = lexer.nextToken()!;
           BinopExp arith = BinopExp(op, exp, parseExp3(lexer));
           exp = Optimizer.optimizeArithBinaryOp(arith);
           break;
@@ -180,7 +180,7 @@ class ExpParser {
         case TokenKind.TOKEN_OP_MOD:
         case TokenKind.TOKEN_OP_DIV:
         case TokenKind.TOKEN_OP_IDIV:
-          Token op = lexer.nextToken();
+          Token op = lexer.nextToken()!;
           BinopExp arith = BinopExp(op, exp, parseExp2(lexer));
           exp = Optimizer.optimizeArithBinaryOp(arith);
           break;
@@ -197,7 +197,7 @@ class ExpParser {
       case TokenKind.TOKEN_OP_WAVE:
       case TokenKind.TOKEN_OP_LEN:
       case TokenKind.TOKEN_OP_NOT:
-        Token op = lexer.nextToken();
+        Token op = lexer.nextToken()!;
         UnopExp exp = UnopExp(op, parseExp2(lexer));
         return Optimizer.optimizeUnaryOp(exp);
     }
@@ -208,7 +208,7 @@ class ExpParser {
    static Exp parseExp1(Lexer lexer) { // pow is right associative
     Exp exp = parseExp0(lexer);
     if (lexer.LookAhead() == TokenKind.TOKEN_OP_POW) {
-      Token op = lexer.nextToken();
+      Token op = lexer.nextToken()!;
       exp = BinopExp(op, exp, parseExp2(lexer));
     }
     return Optimizer.optimizePow(exp);
@@ -217,15 +217,15 @@ class ExpParser {
    static Exp parseExp0(Lexer lexer) {
     switch (lexer.LookAhead()) {
       case TokenKind.TOKEN_VARARG: // ...
-        return VarargExp(lexer.nextToken().line);
+        return VarargExp(lexer.nextToken()!.line);
       case TokenKind.TOKEN_KW_NIL: // nil
-        return NilExp(lexer.nextToken().line);
+        return NilExp(lexer.nextToken()!.line);
       case TokenKind.TOKEN_KW_TRUE: // true
-        return TrueExp(lexer.nextToken().line);
+        return TrueExp(lexer.nextToken()!.line);
       case TokenKind.TOKEN_KW_FALSE: // false
-        return FalseExp(lexer.nextToken().line);
+        return FalseExp(lexer.nextToken()!.line);
       case TokenKind.TOKEN_STRING: // LiteralString
-        return StringExp.fromToken(lexer.nextToken());
+        return StringExp.fromToken(lexer.nextToken()!);
       case TokenKind.TOKEN_NUMBER: // Numeral
         return parseNumberExp(lexer);
       case TokenKind.TOKEN_SEP_LCURLY: // tableconstructor
@@ -239,12 +239,12 @@ class ExpParser {
   }
 
    static Exp parseNumberExp(Lexer lexer) {
-    Token token = lexer.nextToken();
-    int i = LuaNumber.parseInteger(token.value);
+    Token token = lexer.nextToken()!;
+    int? i = LuaNumber.parseInteger(token.value!);
     if (i != null) {
       return IntegerExp(token.line, i);
     }
-    double f = LuaNumber.parseFloat(token.value);
+    double? f = LuaNumber.parseFloat(token.value!);
     if (f != null) {
       return FloatExp(token.line, f);
     }
@@ -262,19 +262,20 @@ class ExpParser {
     lexer.nextTokenOfKind(TokenKind.TOKEN_KW_END);        // end
     int lastLine = lexer.line;
 
-    FuncDefExp fdExp = FuncDefExp();
+    FuncDefExp fdExp = FuncDefExp(
+        parList: parList,
+        isVararg: parList.remove("..."),
+        block: block
+    );
     fdExp.line = line;
     fdExp.lastLine = lastLine;
-    fdExp.IsVararg = parList.remove("...");
-    fdExp.parList = parList;
-    fdExp.block = block;
     return fdExp;
   }
 
   // [parlist]
   // parlist ::= namelist [‘,’ ‘...’] | ‘...’
    static List<String> parseParList(Lexer lexer) {
-    List<String> names = List<String>();
+    List<String> names = <String>[];
 
     switch (lexer.LookAhead()) {
       case TokenKind.TOKEN_SEP_RPAREN:
@@ -328,7 +329,7 @@ class ExpParser {
   }
 
   // fieldsep ::= ‘,’ | ‘;’
-   static bool isFieldSep(TokenKind kind) {
+   static bool isFieldSep(TokenKind? kind) {
     return kind == TokenKind.TOKEN_SEP_COMMA || kind == TokenKind.TOKEN_SEP_SEMI;
   }
 

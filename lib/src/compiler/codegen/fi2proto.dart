@@ -26,7 +26,7 @@ class Fi2Proto {
     if (proto.maxStackSize < 2) {
       proto.maxStackSize = 2; // todo
     }
-    if (fi.isVararg) {
+    if (fi.isVararg!) {
       proto.isVararg = 1; // todo
     }
 
@@ -37,8 +37,8 @@ class Fi2Proto {
     return fis.map(toProto).toList();
   }
 
-  static List<Object> getConstants(FuncInfo fi) {
-    var consts = List<Object>(fi.constants.length);
+  static List<Object?> getConstants(FuncInfo fi) {
+    var consts = List<Object?>.filled(fi.constants.length, null);
     fi.constants.forEach((c, idx) => consts[idx] = c);
     return consts;
   }
@@ -53,13 +53,13 @@ class Fi2Proto {
     }).toList();
   }
 
-  static List<Upvalue> getUpvalues(FuncInfo fi) {
-    var upvals = List<Upvalue>(fi.upvalues.length);
+  static List<Upvalue?> getUpvalues(FuncInfo fi) {
+    var upvals = List<Upvalue?>.filled(fi.upvalues.length, null);
 
     for (UpvalInfo uvInfo in fi.upvalues.values) {
       Upvalue upval = Upvalue();
       upvals[uvInfo.index] = upval;
-      if (uvInfo.locVarSlot >= 0) { // instack
+      if (uvInfo.locVarSlot>= 0) { // instack
         upval.instack = 1;
         upval.idx = uvInfo.locVarSlot;
       } else {
@@ -71,8 +71,8 @@ class Fi2Proto {
     return upvals;
   }
 
-  static List<String> getUpvalueNames(FuncInfo fi) {
-    var names = List<String>(fi.upvalues.length);
+  static List<String?> getUpvalueNames(FuncInfo fi) {
+    var names = List<String?>.filled(fi.upvalues.length, null);
     fi.upvalues.forEach((name, uvInfo) => names[uvInfo.index] = name);
     return names;
   }

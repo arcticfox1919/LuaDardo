@@ -1,6 +1,6 @@
 import 'lua.dart';
 
-_print(int i,LuaType type,[String value]){
+_print(int i,LuaType type,[String? value]){
   var msg = "index:$i -> $type";
   if(value != null) msg += " value:$value";
   print(msg);

@@ -6,8 +6,8 @@ import 'funcinfo.dart';
 import '../lexer/token.dart';
 
 class ArgAndKind {
-  int arg;
-  int kind;
+  int? arg;
+  int? kind;
 }
 
 class ExpProcessor {
@@ -20,7 +20,7 @@ class ExpProcessor {
 
   //static final int ARG_RUK   = ARG_REG | ARG_UPVAL | ARG_CONST;
 
-  static void processExp(FuncInfo fi, Exp node, int a, int n) {
+  static void processExp(FuncInfo fi, Exp? node, int a, int n) {
     if (node is NilExp) {
       fi.emitLoadNil(node.line, a, n);
     } else if (node is FalseExp) {
@@ -57,7 +57,7 @@ class ExpProcessor {
   }
 
   static void processVarargExp(FuncInfo fi, VarargExp node, int a, int n) {
-    if (!fi.isVararg) {
+    if (!fi.isVararg!) {
       throw Exception("cannot use '...' outside a vararg function");
     }
     fi.emitVararg(node.line, a, n);
@@ -68,10 +68,8 @@ class ExpProcessor {
     FuncInfo subFI = FuncInfo(fi, node);
     fi.subFuncs.add(subFI);
 
-    if (node.parList != null) {
-      for (String param in node.parList) {
-        subFI.addLocVar(param, 0);
-      }
+    for (String param in node.parList) {
+      subFI.addLocVar(param, 0);
     }
 
     BlockProcessor.processBlock(subFI, node.block);
@@ -85,7 +83,7 @@ class ExpProcessor {
   static void processTableConstructorExp(
       FuncInfo fi, TableConstructorExp node, int a) {
     int nArr = 0;
-    for (Exp keyExp in node.keyExps) {
+    for (Exp? keyExp in node.keyExps) {
       if (keyExp == null) {
         nArr++;
       }
@@ -98,7 +96,7 @@ class ExpProcessor {
 
     int arrIdx = 0;
     for (int i = 0; i < node.keyExps.length; i++) {
-      Exp keyExp = node.keyExps[i];
+      Exp? keyExp = node.keyExps[i];
       Exp valExp = node.valExps[i];
 
       if (keyExp == null) {
@@ -141,35 +139,35 @@ class ExpProcessor {
   }
 
   // r[a] = op exp
-  static void processUnopExp(FuncInfo fi, UnopExp node, int a) {
+  static void processUnopExp(FuncInfo fi, UnopExp node, int? a) {
     int oldRegs = fi.usedRegs;
-    int b = expToOpArg(fi, node.exp, ARG_REG).arg;
+    int? b = expToOpArg(fi, node.exp, ARG_REG).arg;
     fi.emitUnaryOp(node.line, node.op, a, b);
     fi.usedRegs = oldRegs;
   }
 
   // r[a] = exp1 op exp2
-  static void processBinopExp(FuncInfo fi, BinopExp node, int a) {
+  static void processBinopExp(FuncInfo fi, BinopExp node, int? a) {
     if (node.op == TokenKind.TOKEN_OP_AND || node.op == TokenKind.TOKEN_OP_OR) {
       int oldRegs = fi.usedRegs;
 
-      int b = expToOpArg(fi, node.exp1, ARG_REG).arg;
+      int? b = expToOpArg(fi, node.exp1, ARG_REG).arg;
       fi.usedRegs = oldRegs;
       if (node.op == TokenKind.TOKEN_OP_AND) {
-        fi.emitTestSet(node.line, a, b, 0);
+        fi.emitTestSet(node.line, a!, b!, 0);
       } else {
-        fi.emitTestSet(node.line, a, b, 1);
+        fi.emitTestSet(node.line, a!, b!, 1);
       }
       int pcOfJmp = fi.emitJmp(node.line, 0, 0);
 
       b = expToOpArg(fi, node.exp2, ARG_REG).arg;
       fi.usedRegs = oldRegs;
-      fi.emitMove(node.line, a, b);
+      fi.emitMove(node.line, a, b!);
       fi.fixSbx(pcOfJmp, fi.pc() - pcOfJmp);
     } else {
       int oldRegs = fi.usedRegs;
-      int b = expToOpArg(fi, node.exp1, ARG_RK).arg;
-      int c = expToOpArg(fi, node.exp2, ARG_RK).arg;
+      int? b = expToOpArg(fi, node.exp1, ARG_RK).arg;
+      int? c = expToOpArg(fi, node.exp2, ARG_RK).arg;
       fi.emitBinaryOp(node.line, node.op, a, b, c);
       fi.usedRegs = oldRegs;
     }
@@ -189,16 +187,16 @@ class ExpProcessor {
   }
 
   // r[a] = name
-  static void processNameExp(FuncInfo fi, NameExp node, int a) {
-    int r = fi.slotOfLocVar(node.name);
+  static void processNameExp(FuncInfo fi, NameExp node, int? a) {
+    int r = fi.slotOfLocVar(node.name)!;
     if (r >= 0) {
-      fi.emitMove(node.line, a, r);
+      fi.emitMove(node.line, a!, r);
       return;
     }
 
     int idx = fi.indexOfUpval(node.name);
     if (idx >= 0) {
-      fi.emitGetUpval(node.line, a, idx);
+      fi.emitGetUpval(node.line, a!, idx);
       return;
     }
 
@@ -210,17 +208,17 @@ class ExpProcessor {
   }
 
   // r[a] = prefix[key]
-  static void processTableAccessExp(FuncInfo fi, TableAccessExp node, int a) {
+  static void processTableAccessExp(FuncInfo fi, TableAccessExp node, int? a) {
     int oldRegs = fi.usedRegs;
     ArgAndKind argAndKindB = expToOpArg(fi, node.prefixExp, ARG_RU);
-    int b = argAndKindB.arg;
-    int c = expToOpArg(fi, node.keyExp, ARG_RK).arg;
+    int? b = argAndKindB.arg;
+    int? c = expToOpArg(fi, node.keyExp, ARG_RK).arg;
     fi.usedRegs = oldRegs;
 
     if (argAndKindB.kind == ARG_UPVAL) {
-      fi.emitGetTabUp(node.lastLine, a, b, c);
+      fi.emitGetTabUp(node.lastLine, a!, b!, c!);
     } else {
-      fi.emitGetTable(node.lastLine, a, b, c);
+      fi.emitGetTable(node.lastLine, a!, b!, c!);
     }
   }
 
@@ -237,10 +235,7 @@ class ExpProcessor {
   }
 
   static int prepFuncCall(FuncInfo fi, FuncCallExp node, int a) {
-    List<Exp> args = node.args;
-    if (args == null) {
-      args = <Exp>[];
-    }
+    var args = node.args;
     int nArgs = args.length;
     bool lastArgIsVarargOrFuncCall = false;
 
@@ -248,7 +243,7 @@ class ExpProcessor {
     if (node.nameExp != null) {
       fi.allocReg();
       ArgAndKind argAndKindC = expToOpArg(fi, node.nameExp, ARG_RK);
-      fi.emitSelf(node.line, a, a, argAndKindC.arg);
+      fi.emitSelf(node.line, a, a, argAndKindC.arg!);
       if (argAndKindC.kind == ARG_REG) {
         fi.freeRegs(1);
       }
@@ -276,7 +271,7 @@ class ExpProcessor {
     return nArgs;
   }
 
-  static ArgAndKind expToOpArg(FuncInfo fi, Exp node, int argKinds) {
+  static ArgAndKind expToOpArg(FuncInfo fi, Exp? node, int argKinds) {
     ArgAndKind ak = ArgAndKind();
 
     if ((argKinds & ARG_CONST) > 0) {
@@ -303,7 +298,7 @@ class ExpProcessor {
 
     if (node is NameExp) {
       if ((argKinds & ARG_REG) > 0) {
-        int r = fi.slotOfLocVar(node.name);
+        int r = fi.slotOfLocVar(node.name)!;
         if (r >= 0) {
           ak.arg = r;
           ak.kind = ARG_REG;

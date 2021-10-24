@@ -2,12 +2,12 @@ import '../ast/exp.dart';
 
 class ExpHelper {
 
-  static bool isVarargOrFuncCall(Exp exp) {
+  static bool isVarargOrFuncCall(Exp? exp) {
     return exp is VarargExp
     || exp is FuncCallExp;
   }
 
-  static List<Exp> removeTailNils(List<Exp> exps) {
+  static List<Exp?> removeTailNils(List<Exp?> exps) {
     while (!exps.isEmpty) {
       if (exps[exps.length - 1] is NilExp) {
         exps.removeAt(exps.length - 1);

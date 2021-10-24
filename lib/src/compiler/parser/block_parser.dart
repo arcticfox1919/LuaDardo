@@ -10,15 +10,13 @@ class BlockParser {
 
   // block ::= {stat} [retstat]
   static Block parseBlock(Lexer lexer) {
-    Block block = Block();
-    block.stats = parseStats(lexer);
-    block.retExps = parseRetExps(lexer);
+    Block block = Block(stats: parseStats(lexer), retExps: parseRetExps(lexer));
     block.lastLine = lexer.line;
     return block;
   }
 
-   static List<Stat> parseStats(Lexer lexer) {
-    List<Stat> stats = List<Stat>();
+  static List<Stat> parseStats(Lexer lexer) {
+    List<Stat> stats = <Stat>[];
     while (!_isReturnOrBlockEnd(lexer.LookAhead())) {
       Stat stat = StatParser.parseStat(lexer);
       if (!(stat is EmptyStat)) {
@@ -28,7 +26,7 @@ class BlockParser {
     return stats;
   }
 
-   static bool _isReturnOrBlockEnd(TokenKind kind) {
+   static bool _isReturnOrBlockEnd(TokenKind? kind) {
     switch (kind) {
       case TokenKind.TOKEN_KW_RETURN:
       case TokenKind.TOKEN_EOF:
@@ -46,7 +44,7 @@ class BlockParser {
   // explist ::= exp {‘,’ exp}
    static List<Exp> parseRetExps(Lexer lexer) {
     if (lexer.LookAhead() != TokenKind.TOKEN_KW_RETURN) {
-      return null;
+      return List.empty();
     }
 
     lexer.nextToken();

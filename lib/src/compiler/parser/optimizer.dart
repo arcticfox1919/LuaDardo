@@ -27,9 +27,9 @@ class Optimizer {
   }
 
   static Exp optimizeBitwiseBinaryOp(BinopExp exp) {
-    int i = castToInteger(exp.exp1);
+    int? i = castToInteger(exp.exp1);
     if (i != null) {
-      int j = castToInteger(exp.exp2);
+      int? j = castToInteger(exp.exp2);
       if (j != null) {
         switch (exp.op) {
           case TokenKind.TOKEN_OP_BAND:
@@ -52,33 +52,33 @@ class Optimizer {
     if (exp.exp1 is IntegerExp
         && exp.exp2 is IntegerExp
     ) {
-      IntegerExp x = exp.exp1;
-      IntegerExp y = exp.exp2;
+      IntegerExp x = exp.exp1 as IntegerExp;
+      IntegerExp y = exp.exp2 as IntegerExp;
       switch (exp.op) {
         case TokenKind.TOKEN_OP_ADD:
-          return IntegerExp(exp.line, x.val + y.val);
+          return IntegerExp(exp.line, x.val! + y.val!);
         case TokenKind.TOKEN_OP_SUB:
-          return IntegerExp(exp.line, x.val - y.val);
+          return IntegerExp(exp.line, x.val! - y.val!);
         case TokenKind.TOKEN_OP_MUL:
-          return IntegerExp(exp.line, x.val * y.val);
+          return IntegerExp(exp.line, x.val! * y.val!);
         case TokenKind.TOKEN_OP_IDIV:
           if (y.val != 0) {
             return IntegerExp(
-                exp.line, (x.val/y.val).floor());
+                exp.line, (x.val!/y.val!).floor());
           }
           break;
         case TokenKind.TOKEN_OP_MOD:
           if (y.val != 0) {
             return IntegerExp(
-                exp.line, LuaMath.iFloorMod(x.val, y.val));
+                exp.line, LuaMath.iFloorMod(x.val!, y.val!));
           }
           break;
       }
     }
 
-    double f = castToFloat(exp.exp1);
+    double? f = castToFloat(exp.exp1);
     if (f != null) {
-      double g = castToFloat(exp.exp2);
+      double? g = castToFloat(exp.exp2);
       if (g != null) {
         switch (exp.op) {
           case TokenKind.TOKEN_OP_ADD:
@@ -88,7 +88,7 @@ class Optimizer {
           case TokenKind.TOKEN_OP_MUL:
             return FloatExp(exp.line, f * g);
           case TokenKind.TOKEN_OP_POW:
-            return FloatExp(exp.line, math.pow(f, g));
+            return FloatExp(exp.line, math.pow(f, g) as double);
         }
         if (g != 0) {
           switch (exp.op) {
@@ -133,12 +133,12 @@ class Optimizer {
 
   static Exp optimizeUnm(UnopExp exp) {
     if (exp.exp is IntegerExp) {
-      IntegerExp iExp = exp.exp;
-      iExp.val = -iExp.val;
+      IntegerExp iExp = exp.exp as IntegerExp;
+      iExp.val = -iExp.val!;
       return iExp;
     }
     if (exp.exp is FloatExp) {
-      FloatExp fExp = exp.exp;
+      FloatExp fExp = exp.exp as FloatExp;
       fExp.val = -fExp.val;
       return fExp;
     }
@@ -162,12 +162,12 @@ class Optimizer {
 
   static Exp optimizeBnot(UnopExp exp) {
     if (exp.exp is IntegerExp) {
-      IntegerExp iExp = exp.exp;
-      iExp.val = ~iExp.val;
+      IntegerExp iExp = exp.exp as IntegerExp;
+      iExp.val = ~iExp.val!;
       return iExp;
     }
     if (exp.exp is FloatExp) {
-      FloatExp fExp = exp.exp;
+      FloatExp fExp = exp.exp as FloatExp;
       double f = fExp.val;
       if (LuaNumber.isInteger(f)) {
         return IntegerExp(fExp.line, ~f.toInt());
@@ -199,7 +199,7 @@ class Optimizer {
         FuncCallExp;
   }
 
-  static int castToInteger(Exp exp) {
+  static int? castToInteger(Exp exp) {
     if (exp is IntegerExp) {
       return exp.val;
     }
@@ -211,9 +211,9 @@ class Optimizer {
     null;
   }
 
-  static double castToFloat(Exp exp) {
+  static double? castToFloat(Exp exp) {
     if (exp is IntegerExp) {
-      return exp.val.toDouble();
+      return exp.val!.toDouble();
     }
     if (exp is FloatExp) {
       return exp.val;

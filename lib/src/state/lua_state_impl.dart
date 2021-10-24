@@ -31,13 +31,13 @@ import 'closure.dart';
 import 'upvalue_holder.dart';
 
 class LuaStateImpl implements LuaState, LuaVM {
-  LuaStack _stack = LuaStack();
+  LuaStack? _stack = LuaStack();
 
   /// 注册表
-  LuaTable registry = LuaTable(0, 0);
+  LuaTable? registry = LuaTable(0, 0);
 
   LuaStateImpl() {
-    registry.put(lua_ridx_globals, LuaTable(0, 0));
+    registry!.put(lua_ridx_globals, LuaTable(0, 0));
     LuaStack stack = LuaStack();
     stack.state = this;
     _pushLuaStack(stack);
@@ -50,49 +50,49 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   void _popLuaStack() {
-    LuaStack top = this._stack;
+    LuaStack top = this._stack!;
     this._stack = top.prev;
     top.prev = null;
   }
 
   /* metatable */
-  LuaTable _getMetatable(Object val) {
+  LuaTable? _getMetatable(Object? val) {
     if (val is LuaTable) {
       return val.metatable;
     }
     String key = "_MT${LuaValue.typeOf(val)}";
-    Object mt = registry.get(key);
+    Object? mt = registry!.get(key);
     return mt != null ? (mt as LuaTable) : null;
   }
 
-  void _setMetatable(Object val, LuaTable mt) {
+  void _setMetatable(Object? val, LuaTable? mt) {
     if (val is LuaTable) {
       val.metatable = mt;
       return;
     }
     String key = "_MT${LuaValue.typeOf(val)}";
-    registry.put(key, mt);
+    registry!.put(key, mt);
   }
 
-  Object _getMetafield(Object val, String fieldName) {
-    LuaTable mt = _getMetatable(val);
+  Object? _getMetafield(Object? val, String fieldName) {
+    LuaTable? mt = _getMetatable(val);
     return mt != null ? mt.get(fieldName) : null;
   }
 
-  Object getMetamethod(Object a, Object b, String mmName) {
-    Object mm = _getMetafield(a, mmName);
+  Object? getMetamethod(Object? a, Object? b, String mmName) {
+    Object? mm = _getMetafield(a, mmName);
     if (mm == null) {
       mm = _getMetafield(b, mmName);
     }
     return mm;
   }
 
-  Object callMetamethod(Object a, Object b, Object mm) {
-    _stack.push(mm);
-    _stack.push(a);
-    _stack.push(b);
+  Object? callMetamethod(Object? a, Object? b, Object mm) {
+    _stack!.push(mm);
+    _stack!.push(a);
+    _stack!.push(b);
     call(2, 1);
-    return _stack.pop();
+    return _stack!.pop();
   }
 
   //**************************************************
@@ -101,7 +101,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   int absIndex(int idx) {
-    return _stack.absIndex(idx);
+    return _stack!.absIndex(idx);
   }
 
   @override
@@ -111,12 +111,12 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void copy(int fromIdx, int toIdx) {
-    _stack.set(toIdx, _stack.get(fromIdx));
+    _stack!.set(toIdx, _stack!.get(fromIdx));
   }
 
   @override
   int getTop() {
-    return _stack.top();
+    return _stack!.top();
   }
 
   @override
@@ -131,7 +131,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool isInteger(int idx) {
-    return _stack.get(idx) is int;
+    return _stack!.get(idx) is int;
   }
 
   @override
@@ -184,38 +184,38 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   void pop(int n) {
     for (int i = 0; i < n; i++) {
-      _stack.pop();
+      _stack!.pop();
     }
   }
 
   @override
-  void pushInteger(int n) {
-    _stack.push(n);
+  void pushInteger(int? n) {
+    _stack!.push(n);
   }
 
   @override
   void pushNil() {
-    _stack.push(null);
+    _stack!.push(null);
   }
 
   @override
   void pushNumber(double n) {
-    _stack.push(n);
+    _stack!.push(n);
   }
 
   @override
-  void pushString(String s) {
-    _stack.push(s);
+  void pushString(String? s) {
+    _stack!.push(s);
   }
 
   @override
   void pushValue(int idx) {
-    _stack.push(_stack.get(idx));
+    _stack!.push(_stack!.get(idx));
   }
 
   @override
   void pushBoolean(bool b) {
-    _stack.push(b);
+    _stack!.push(b);
   }
 
   @override
@@ -226,60 +226,60 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void replace(int idx) {
-    _stack.set(idx, _stack.pop());
+    _stack!.set(idx, _stack!.pop());
   }
 
   @override
   void rotate(int idx, int n) {
-    int t = _stack.top() - 1; /* end of stack segment being rotated */
-    int p = _stack.absIndex(idx) - 1; /* start of segment */
+    int t = _stack!.top() - 1; /* end of stack segment being rotated */
+    int p = _stack!.absIndex(idx) - 1; /* start of segment */
     int m = n >= 0 ? t - n : p - n - 1; /* end of prefix */
 
-    _stack.reverse(p, m); /* reverse the prefix with length 'n' */
-    _stack.reverse(m + 1, t); /* reverse the suffix */
-    _stack.reverse(p, t); /* reverse the entire segment */
+    _stack!.reverse(p, m); /* reverse the prefix with length 'n' */
+    _stack!.reverse(m + 1, t); /* reverse the suffix */
+    _stack!.reverse(p, t); /* reverse the entire segment */
   }
 
   @override
   void setTop(int idx) {
-    int newTop = _stack.absIndex(idx);
+    int newTop = _stack!.absIndex(idx);
     if (newTop < 0) {
       throw Exception("stack underflow!");
     }
 
-    int n = _stack.top() - newTop;
+    int n = _stack!.top() - newTop;
     if (n > 0) {
       for (int i = 0; i < n; i++) {
-        _stack.pop();
+        _stack!.pop();
       }
     } else if (n < 0) {
       for (int i = 0; i > n; i--) {
-        _stack.push(null);
+        _stack!.push(null);
       }
     }
   }
 
   @override
   int toInteger(int idx) {
-    int i = toIntegerX(idx);
+    int? i = toIntegerX(idx);
     return i == null ? 0 : i;
   }
 
   @override
-  int toIntegerX(int idx) {
-    Object val = _stack.get(idx);
+  int? toIntegerX(int idx) {
+    Object? val = _stack!.get(idx);
     return val is int ? val : null;
   }
 
   @override
   double toNumber(int idx) {
-    double n = toNumberX(idx);
+    double? n = toNumberX(idx);
     return n == null ? 0 : n;
   }
 
   @override
-  double toNumberX(int idx) {
-    Object val = _stack.get(idx);
+  double? toNumberX(int idx) {
+    Object? val = _stack!.get(idx);
     if (val is double) {
       return val;
     } else if (val is int) {
@@ -290,20 +290,20 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  Userdata toUserdata<T>(int idx) {
-    Object val = _stack.get(idx);
+  Userdata? toUserdata<T>(int idx) {
+    Object? val = _stack!.get(idx);
     return val is Userdata ? val : null;
   }
 
   @override
   bool toBoolean(int idx) {
-    return LuaValue.toBoolean(_stack.get(idx));
+    return LuaValue.toBoolean(_stack!.get(idx));
   }
 
   @override
   LuaType type(int idx) {
-    return _stack.isValid(idx)
-        ? LuaValue.typeOf(_stack.get(idx))
+    return _stack!.isValid(idx)
+        ? LuaValue.typeOf(_stack!.get(idx))
         : LuaType.luaNone;
   }
 
@@ -332,8 +332,8 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  String toStr(int idx) {
-    Object val = _stack.get(idx);
+  String? toStr(int idx) {
+    Object? val = _stack!.get(idx);
     if (val is String) {
       return val;
     } else if (val is int || val is double) {
@@ -345,13 +345,13 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void arith(ArithOp op) {
-    Object b = _stack.pop();
-    Object a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot
-        ? _stack.pop()
+    Object? b = _stack!.pop();
+    Object? a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot
+        ? _stack!.pop()
         : b;
-    Object result = Arithmetic.arith(a, b, op, this);
+    Object? result = Arithmetic.arith(a, b, op, this);
     if (result != null) {
-      _stack.push(result);
+      _stack!.push(result);
     } else {
       throw Exception("arithmetic error!");
     }
@@ -359,12 +359,12 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool compare(int idx1, int idx2, CmpOp op) {
-    if (!_stack.isValid(idx1) || !_stack.isValid(idx2)) {
+    if (!_stack!.isValid(idx1) || !_stack!.isValid(idx2)) {
       return false;
     }
 
-    Object a = _stack.get(idx1);
-    Object b = _stack.get(idx2);
+    Object? a = _stack!.get(idx1);
+    Object? b = _stack!.get(idx2);
     switch (op) {
       case CmpOp.lua_op_eq:
         return Comparison.eq(a, b, this);
@@ -380,22 +380,22 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   void concat(int n) {
     if (n == 0) {
-      _stack.push("");
+      _stack!.push("");
     } else if (n >= 2) {
       for (int i = 1; i < n; i++) {
         if (isString(-1) && isString(-2)) {
-          String s2 = toStr(-1);
-          String s1 = toStr(-2);
+          String s2 = toStr(-1)!;
+          String s1 = toStr(-2)!;
           pop(2);
           pushString(s1 + s2);
           continue;
         }
 
-        Object b = _stack.pop();
-        Object a = _stack.pop();
-        Object mm = getMetamethod(a, b, "__concat");
+        Object? b = _stack!.pop();
+        Object? a = _stack!.pop();
+        Object? mm = getMetamethod(a, b, "__concat");
         if (mm != null) {
-          _stack.push(callMetamethod(a, b, mm));
+          _stack!.push(callMetamethod(a, b, mm));
           continue;
         }
 
@@ -407,14 +407,14 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void len(int idx) {
-    Object val = _stack.get(idx);
+    Object? val = _stack!.get(idx);
     if (val is String) {
       pushInteger(val.length);
     }
 
-    Object mm = getMetamethod(val, val, "__len");
+    Object? mm = getMetamethod(val, val, "__len");
     if (mm != null) {
-      _stack.push(callMetamethod(val, val, mm));
+      _stack!.push(callMetamethod(val, val, mm));
       return;
     }
 
@@ -427,49 +427,49 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void createTable(int nArr, int nRec) {
-    _stack.push(LuaTable(nArr, nRec));
+    _stack!.push(LuaTable(nArr, nRec));
   }
 
   @override
-  LuaType getField(int idx, String k) {
-    Object t = _stack.get(idx);
+  LuaType getField(int idx, String? k) {
+    Object? t = _stack!.get(idx);
     return _getTable(t, k, false);
   }
 
   @override
   LuaType getI(int idx, int i) {
-    Object t = _stack.get(idx);
+    Object? t = _stack!.get(idx);
     return _getTable(t, i, false);
   }
 
   @override
   LuaType getTable(int idx) {
-    Object t = _stack.get(idx);
-    Object k = _stack.pop();
+    Object? t = _stack!.get(idx);
+    Object? k = _stack!.pop();
     return _getTable(t, k, false);
   }
 
   /// [raw] 是否忽略元方法
   /// _setTable 同
-  LuaType _getTable(Object t, Object k, bool raw) {
+  LuaType _getTable(Object? t, Object? k, bool raw) {
     if (t is LuaTable) {
       LuaTable tbl = t;
-      Object v = t.get(k);
+      Object? v = t.get(k);
 
       if (raw || v != null || !tbl.hasMetafield("__index")) {
-        _stack.push(v);
+        _stack!.push(v);
         return LuaValue.typeOf(v);
       }
     }
 
     if (!raw) {
-      Object mf = _getMetafield(t, "__index");
+      Object? mf = _getMetafield(t, "__index");
       if (mf != null) {
         if (mf is LuaTable) {
           return _getTable(mf, k, false);
         } else if (mf is Closure) {
-          Object v = callMetamethod(t, k, mf);
-          _stack.push(v);
+          Object? v = callMetamethod(t, k, mf);
+          _stack!.push(v);
           return LuaValue.typeOf(v);
         }
       }
@@ -485,33 +485,33 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   Userdata newUserdata<T>() {
     var r = Userdata<T>();
-    _stack.push(r);
+    _stack!.push(r);
     return r;
   }
 
   @override
-  void setField(int idx, String k) {
-    Object t = _stack.get(idx);
-    Object v = _stack.pop();
+  void setField(int idx, String? k) {
+    Object? t = _stack!.get(idx);
+    Object? v = _stack!.pop();
     _setTable(t, k, v, false);
   }
 
   @override
   void setTable(int idx) {
-    Object t = _stack.get(idx);
-    Object v = _stack.pop();
-    Object k = _stack.pop();
+    Object? t = _stack!.get(idx);
+    Object? v = _stack!.pop();
+    Object? k = _stack!.pop();
     _setTable(t, k, v, false);
   }
 
   @override
-  void setI(int idx, int i) {
-    Object t = _stack.get(idx);
-    Object v = _stack.pop();
+  void setI(int idx, int? i) {
+    Object? t = _stack!.get(idx);
+    Object? v = _stack!.pop();
     _setTable(t, i, v, false);
   }
 
-  void _setTable(Object t, Object k, Object v, bool raw) {
+  void _setTable(Object? t, Object? k, Object? v, bool raw) {
     if (t is LuaTable) {
       LuaTable tbl = t;
       if (raw || tbl.get(k) != null || !tbl.hasMetafield("__newindex")) {
@@ -521,17 +521,17 @@ class LuaStateImpl implements LuaState, LuaVM {
     }
 
     if (!raw) {
-      Object mf = _getMetafield(t, "__newindex");
+      Object? mf = _getMetafield(t, "__newindex");
       if (mf != null) {
         if (mf is LuaTable) {
           _setTable(mf, k, v, false);
           return;
         }
         if (mf is Closure) {
-          _stack.push(mf);
-          _stack.push(t);
-          _stack.push(k);
-          _stack.push(v);
+          _stack!.push(mf);
+          _stack!.push(t);
+          _stack!.push(k);
+          _stack!.push(v);
           call(3, 0);
           return;
         }
@@ -542,13 +542,13 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void call(int nArgs, int nResults) {
-    Object val = _stack.get(-(nArgs + 1));
-    Object f = val is Closure ? val : null;
+    Object? val = _stack!.get(-(nArgs + 1));
+    Object? f = val is Closure ? val : null;
 
     if (f == null) {
-      Object mf = _getMetafield(val, "__call");
+      Object? mf = _getMetafield(val, "__call");
       if (mf != null && mf is Closure) {
-        _stack.push(f);
+        _stack!.push(f);
         insert(-(nArgs + 2));
         nArgs += 1;
         f = mf;
@@ -568,9 +568,9 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   void _callLuaClosure(int nArgs, int nResults, Closure c) {
-    int nRegs = c.proto.maxStackSize;
-    int nParams = c.proto.numParams;
-    bool isVararg = c.proto.isVararg == 1;
+    int nRegs = c.proto!.maxStackSize;
+    int nParams = c.proto!.numParams!;
+    bool isVararg = c.proto!.isVararg == 1;
 
     // create new lua stack
     LuaStack newStack = LuaStack(/*nRegs + 20*/);
@@ -578,7 +578,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     newStack.closure = c;
 
     // pass args, pop func
-    List<Object> funcAndArgs = _stack.popN(nArgs + 1);
+    List<Object?> funcAndArgs = _stack!.popN(nArgs + 1);
     newStack.pushN(funcAndArgs.sublist(1, funcAndArgs.length), nParams);
     if (nArgs > nParams && isVararg) {
       newStack.varargs = funcAndArgs.sublist(nParams + 1, funcAndArgs.length);
@@ -592,9 +592,9 @@ class LuaStateImpl implements LuaState, LuaVM {
 
     // return results
     if (nResults != 0) {
-      List<Object> results = newStack.popN(newStack.top() - nRegs);
+      List<Object?> results = newStack.popN(newStack.top() - nRegs);
       //stack.check(results.size())
-      _stack.pushN(results, nResults);
+      _stack!.pushN(results, nResults);
     }
   }
 
@@ -606,20 +606,20 @@ class LuaStateImpl implements LuaState, LuaVM {
 
     // pass args, pop func
     if (nArgs > 0) {
-      newStack.pushN(_stack.popN(nArgs), nArgs);
+      newStack.pushN(_stack!.popN(nArgs), nArgs);
     }
-    _stack.pop();
+    _stack!.pop();
 
     // run closure
     _pushLuaStack(newStack);
-    int r = c.dartFunc.call(this);
+    int r = c.dartFunc!.call(this);
     _popLuaStack();
 
     // return results
     if (nResults != 0) {
-      List<Object> results = newStack.popN(r);
+      List<Object?> results = newStack.popN(r);
       //stack.check(results.size())
-      _stack.pushN(results, nResults);
+      _stack!.pushN(results, nResults);
     }
   }
 
@@ -627,7 +627,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     for (;;) {
       int i = fetch();
       OpCode opCode = Instruction.getOpCode(i);
-      opCode.action.call(i, this);
+      opCode.action!.call(i, this);
       if (opCode.name == "RETURN") {
         break;
       }
@@ -635,14 +635,14 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  ThreadStatus load(Uint8List chunk, String chunkName, String mode) {
+  ThreadStatus load(Uint8List chunk, String chunkName, String? mode) {
     Prototype proto = BinaryChunk.isBinaryChunk(chunk)
-        ? BinaryChunk.undump(chunk)
+        ? BinaryChunk.unDump(chunk)
         : Compiler.compile(utf8.decode(chunk), chunkName);
     Closure closure = Closure(proto);
-    _stack.push(closure);
+    _stack!.push(closure);
     if (proto.upvalues.length > 0) {
-      Object env = registry.get(lua_ridx_globals);
+      Object? env = registry!.get(lua_ridx_globals);
       closure.upvals[0] = UpvalueHolder.value(env); // todo
     }
     return ThreadStatus.lua_ok;
@@ -650,40 +650,40 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool isDartFunction(int idx) {
-    Object val = _stack.get(idx);
+    Object? val = _stack!.get(idx);
     return val is Closure && val.dartFunc != null;
   }
 
   @override
   void pushDartFunction(f) {
-    _stack.push(Closure.DartFunc(f, 0));
+    _stack!.push(Closure.DartFunc(f, 0));
   }
 
   @override
   toDartFunction(int idx) {
-    Object val = _stack.get(idx);
+    Object? val = _stack!.get(idx);
     return val is Closure ? val.dartFunc : null;
   }
 
   @override
   LuaType getGlobal(String name) {
-    Object t = registry.get(lua_ridx_globals);
+    Object? t = registry!.get(lua_ridx_globals);
     return _getTable(t, name, false);
   }
 
   @override
   void pushGlobalTable() {
-    _stack.push(registry.get(lua_ridx_globals));
+    _stack!.push(registry!.get(lua_ridx_globals));
   }
 
   @override
-  void pushDartClosure(f, int n) {
+  void pushDartClosure(DartFunction? f, int n) {
     Closure closure = Closure.DartFunc(f, n);
     for (int i = n; i > 0; i--) {
-      Object val = _stack.pop();
+      Object? val = _stack!.pop();
       closure.upvals[i - 1] = UpvalueHolder.value(val); // TODO
     }
-    _stack.push(closure);
+    _stack!.push(closure);
   }
 
   @override
@@ -694,17 +694,17 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void setGlobal(String name) {
-    Object t = registry.get(lua_ridx_globals);
-    Object v = _stack.pop();
+    Object? t = registry!.get(lua_ridx_globals);
+    Object? v = _stack!.pop();
     _setTable(t, name, v, false);
   }
 
   @override
   bool getMetatable(int idx) {
-    Object val = _stack.get(idx);
-    Object mt = _getMetatable(val);
+    Object? val = _stack!.get(idx);
+    Object? mt = _getMetatable(val);
     if (mt != null) {
-      _stack.push(mt);
+      _stack!.push(mt);
       return true;
     } else {
       return false;
@@ -713,31 +713,31 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool rawEqual(int idx1, int idx2) {
-    if (!_stack.isValid(idx1) || !_stack.isValid(idx2)) {
+    if (!_stack!.isValid(idx1) || !_stack!.isValid(idx2)) {
       return false;
     }
 
-    Object a = _stack.get(idx1);
-    Object b = _stack.get(idx2);
+    Object? a = _stack!.get(idx1);
+    Object? b = _stack!.get(idx2);
     return Comparison.eq(a, b, null);
   }
 
   @override
   LuaType rawGet(int idx) {
-    Object t = _stack.get(idx);
-    Object k = _stack.pop();
+    Object? t = _stack!.get(idx);
+    Object? k = _stack!.pop();
     return _getTable(t, k, true);
   }
 
   @override
   LuaType rawGetI(int idx, int i) {
-    Object t = _stack.get(idx);
+    Object? t = _stack!.get(idx);
     return _getTable(t, i, true);
   }
 
   @override
   int rawLen(int idx) {
-    Object val = _stack.get(idx);
+    Object? val = _stack!.get(idx);
     if (val is String) {
       return val.length;
     } else if (val is LuaTable) {
@@ -749,23 +749,23 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void rawSet(int idx) {
-    Object t = _stack.get(idx);
-    Object v = _stack.pop();
-    Object k = _stack.pop();
+    Object? t = _stack!.get(idx);
+    Object? v = _stack!.pop();
+    Object? k = _stack!.pop();
     _setTable(t, k, v, true);
   }
 
   @override
   void rawSetI(int idx, int i) {
-    Object t = _stack.get(idx);
-    Object v = _stack.pop();
+    Object? t = _stack!.get(idx);
+    Object? v = _stack!.pop();
     _setTable(t, i, v, true);
   }
 
   @override
   void setMetatable(int idx) {
-    Object val = _stack.get(idx);
-    Object mtVal = _stack.pop();
+    Object? val = _stack!.get(idx);
+    Object? mtVal = _stack!.pop();
 
     if (mtVal == null) {
       _setMetatable(val, null);
@@ -778,14 +778,14 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool next(int idx) {
-    Object val = _stack.get(idx);
+    Object? val = _stack!.get(idx);
     if (val is LuaTable) {
       LuaTable t = val;
-      Object key = _stack.pop();
-      Object nextKey = t.nextKey(key);
+      Object? key = _stack!.pop();
+      Object? nextKey = t.nextKey(key);
       if (nextKey != null) {
-        _stack.push(nextKey);
-        _stack.push(t.get(nextKey));
+        _stack!.push(nextKey);
+        _stack!.push(t.get(nextKey));
         return true;
       }
       return false;
@@ -795,13 +795,13 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   int error() {
-    Object err = _stack.pop();
+    Object? err = _stack!.pop();
     throw Exception(err.toString()); // TODO
   }
 
   @override
   ThreadStatus pCall(int nArgs, int nResults, int msgh) {
-    LuaStack caller = _stack;
+    LuaStack? caller = _stack;
     try {
       call(nArgs, nResults);
       return ThreadStatus.lua_ok;
@@ -812,7 +812,7 @@ class LuaStateImpl implements LuaState, LuaVM {
       while (_stack != caller) {
         _popLuaStack();
       }
-      _stack.push("$e"); // TODO
+      _stack!.push("$e"); // TODO
       return ThreadStatus.lua_errrun;
     }
   }
@@ -821,8 +821,8 @@ class LuaStateImpl implements LuaState, LuaVM {
   //******************* LuaAuxLib ********************
   //**************************************************
   @override
-  void argCheck(bool cond, int arg, String extraMsg) {
-    if (!cond) {
+  void argCheck(bool? cond, int arg, String extraMsg) {
+    if (!cond!) {
       argError(arg, extraMsg);
     }
   }
@@ -853,8 +853,8 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  int checkInteger(int arg) {
-    int i = toIntegerX(arg);
+  int? checkInteger(int arg) {
+    int? i = toIntegerX(arg);
     if (i == null) {
       intError(arg);
     }
@@ -874,7 +874,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   void typeError(int arg, String tname) {
-    String typeArg; /* name for the type of the actual argument */
+    String? typeArg; /* name for the type of the actual argument */
     if (getMetafield(arg, "__name") == LuaType.luaString) {
       typeArg = toStr(-1); /* use the given type name */
     } else if (type(arg) == LuaType.luaLightUserdata) {
@@ -882,14 +882,14 @@ class LuaStateImpl implements LuaState, LuaVM {
     } else {
       typeArg = typeName2(arg); /* standard name */
     }
-    String msg = tname + " expected, got " + typeArg;
+    String msg = tname + " expected, got " + typeArg!;
     pushString(msg);
     argError(arg, msg);
   }
 
   @override
-  double checkNumber(int arg) {
-    double f = toNumberX(arg);
+  double? checkNumber(int arg) {
+    double? f = toNumberX(arg);
     if (f == null) {
       tagError(arg, LuaType.luaNumber);
     }
@@ -908,8 +908,8 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  String checkString(int arg) {
-    String s = toStr(arg);
+  String? checkString(int arg) {
+    String? s = toStr(arg);
     if (s == null) {
       tagError(arg, LuaType.luaString);
     }
@@ -936,7 +936,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  int error2(String fmt, [List<Object> a]) {
+  int error2(String fmt, [List<Object?>? a]) {
     pushFString(fmt, a);
     return error();
   }
@@ -970,7 +970,7 @@ class LuaStateImpl implements LuaState, LuaVM {
       return true; /* table already there */
     }
     pop(1); /* remove previous result */
-    idx = _stack.absIndex(idx);
+    idx = _stack!.absIndex(idx);
     newTable();
     pushValue(-1); /* copy to be left at top */
     setField(idx, fname); /* assign new table to field */
@@ -978,9 +978,9 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  int len2(int idx) {
+  int? len2(int idx) {
     len(idx);
-    int i = toIntegerX(-1);
+    int? i = toIntegerX(-1);
     if (i == null) {
       error2("object length is not an integer");
     }
@@ -989,14 +989,14 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  ThreadStatus loadFile(String filename) {
+  ThreadStatus loadFile(String? filename) {
     return loadFileX(filename, "bt");
   }
 
   @override
-  ThreadStatus loadFileX(String filename, String mode) {
+  ThreadStatus loadFileX(String? filename, String? mode) {
     try {
-      File file = File(filename);
+      File file = File(filename!);
       return load(file.readAsBytesSync(), "@" + filename, mode);
     } catch (e, s) {
       print(e);
@@ -1007,13 +1007,13 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   ThreadStatus loadString(String s) {
-    return load(utf8.encode(s), s, "bt");
+    return load(utf8.encode(s) as Uint8List, s, "bt");
   }
 
   @override
   void newLib(Map l) {
     newLibTable(l);
-    setFuncs(l, 0);
+    setFuncs(l as Map<String, int Function(LuaState)?>, 0);
   }
 
   @override
@@ -1039,23 +1039,23 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  int optInteger(int arg, int dft) {
+  int? optInteger(int arg, int? dft) {
     return isNoneOrNil(arg) ? dft : checkInteger(arg);
   }
 
   @override
-  double optNumber(int arg, double d) {
+  double? optNumber(int arg, double d) {
     return isNoneOrNil(arg) ? d : checkNumber(arg);
   }
 
   @override
-  String optString(int arg, String d) {
+  String? optString(int arg, String d) {
     return isNoneOrNil(arg) ? d : checkString(arg);
   }
 
   @override
-  void pushFString(String fmt, [List<Object> a]) {
-    var str = a == null ? fmt : sprintf(fmt, a);
+  void pushFString(String fmt, [List<Object?>? a]) {
+    String? str = a == null ? fmt : sprintf(fmt, a);
     pushString(str);
   }
 
@@ -1086,7 +1086,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  void setFuncs(Map<String, DartFunction> l, int nup) {
+  void setFuncs(Map<String, DartFunction?> l, int nup) {
     checkStack2(nup, "too many upvalues");
     l.forEach((name, fun) {
       /* fill the table with given functions */
@@ -1103,12 +1103,12 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool stringToNumber(String s) {
-    int i = LuaNumber.parseInteger(s);
+    int? i = LuaNumber.parseInteger(s);
     if (i != null) {
       pushInteger(i);
       return true;
     }
-    double f = LuaNumber.parseFloat(s);
+    double? f = LuaNumber.parseFloat(s);
     if (f != null) {
       pushNumber(f);
       return true;
@@ -1117,12 +1117,12 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  Object toPointer(int idx) {
-    return _stack.get(idx); // todo
+  Object? toPointer(int idx) {
+    return _stack!.get(idx); // todo
   }
 
   @override
-  String toString2(int idx) {
+  String? toString2(int idx) {
     if (callMeta(idx, "__tostring")) {
       /* metafield? */
       if (!isString(-1)) {
@@ -1149,7 +1149,7 @@ class LuaStateImpl implements LuaState, LuaVM {
         default:
           LuaType tt = getMetafield(idx, "__name");
           /* try name */
-          String kind =
+          String? kind =
               tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
           pushString("$kind: ${toPointer(idx).hashCode}");
           if (tt != LuaType.luaNil) {
@@ -1220,22 +1220,22 @@ class LuaStateImpl implements LuaState, LuaVM {
   //**************************************************
   @override
   void addPC(int n) {
-    _stack.pc += n;
+    _stack!.pc += n;
   }
 
   @override
   int fetch() {
-    return _stack.closure.proto.code[_stack.pc++];
+    return _stack!.closure!.proto!.code[_stack!.pc++];
   }
 
   @override
   void getConst(int idx) {
-    _stack.push(_stack.closure.proto.constants[idx]);
+    _stack!.push(_stack!.closure!.proto!.constants[idx]);
   }
 
   @override
   int getPC() {
-    return _stack.pc;
+    return _stack!.pc;
   }
 
   @override
@@ -1251,51 +1251,51 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void loadProto(int idx) {
-    Prototype proto = _stack.closure.proto.protos[idx];
+    Prototype proto = _stack!.closure!.proto!.protos[idx]!;
     Closure closure = Closure(proto);
-    _stack.push(closure);
+    _stack!.push(closure);
 
     for (int i = 0; i < proto.upvalues.length; i++) {
-      Upvalue uvInfo = proto.upvalues[i];
-      int uvIdx = uvInfo.idx;
+      Upvalue uvInfo = proto.upvalues[i]!;
+      int? uvIdx = uvInfo.idx;
       if (uvInfo.instack == 1) {
-        if (_stack.openuvs == null) {
-          _stack.openuvs = Map<int, UpvalueHolder>();
+        if (_stack!.openuvs == null) {
+          _stack!.openuvs = Map<int?, UpvalueHolder?>();
         }
-        if (_stack.openuvs.containsKey(uvIdx)) {
-          closure.upvals[i] = _stack.openuvs[uvIdx];
+        if (_stack!.openuvs!.containsKey(uvIdx)) {
+          closure.upvals[i] = _stack!.openuvs![uvIdx];
         } else {
           closure.upvals[i] = UpvalueHolder(_stack, uvIdx);
-          _stack.openuvs[uvIdx] = closure.upvals[i];
+          _stack!.openuvs![uvIdx] = closure.upvals[i];
         }
       } else {
-        closure.upvals[i] = _stack.closure.upvals[uvIdx];
+        closure.upvals[i] = _stack!.closure!.upvals[uvIdx!];
       }
     }
   }
 
   @override
   void loadVararg(int n) {
-    List<Object> varargs =
-        _stack.varargs != null ? _stack.varargs : const <Object>[];
+    List<Object?>? varargs =
+        _stack!.varargs != null ? _stack!.varargs : const <Object>[];
     if (n < 0) {
-      n = varargs.length;
+      n = varargs!.length;
     }
 
     //stack.check(n)
-    _stack.pushN(varargs, n);
+    _stack!.pushN(varargs, n);
   }
 
   @override
   int registerCount() {
-    return _stack.closure.proto.maxStackSize;
+    return _stack!.closure!.proto!.maxStackSize;
   }
 
   @override
   void closeUpvalues(int a) {
-    if (_stack.openuvs != null) {
-      _stack.openuvs.removeWhere((k, v) {
-        if (v.index >= a - 1) {
+    if (_stack!.openuvs != null) {
+      _stack!.openuvs!.removeWhere((k, v) {
+        if (v!.index! >= a - 1) {
           v.migrate();
           return true;
         } else

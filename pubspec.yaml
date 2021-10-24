@@ -4,11 +4,11 @@ version: 0.0.3
 homepage: https://github.com/arcticfox1919/LuaDardo.git
 
 environment:
-  sdk: '>=2.9.3 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  sprintf: "^5.0.0"
+  sprintf: ^6.0.0
 
 dev_dependencies:
-  pedantic: ^1.9.0
-  test: ^1.15.7
+  pedantic: ^1.11.1
+  test: ^1.17.12

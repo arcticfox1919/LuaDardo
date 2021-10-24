@@ -12,10 +12,10 @@ class Compiler {
     return proto;
   }
 
-  static void _setSource(Prototype proto, String chunkName) {
+  static void _setSource(Prototype proto, String? chunkName) {
     proto.source = chunkName;
-    for (Prototype subProto in proto.protos) {
-      _setSource(subProto, chunkName);
+    for (Prototype? subProto in proto.protos) {
+      _setSource(subProto!, chunkName);
     }
   }
 

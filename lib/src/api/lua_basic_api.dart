@@ -61,19 +61,19 @@ abstract class LuaBasicAPI {
 
   int toInteger(int idx);
 
-  int toIntegerX(int idx);
+  int? toIntegerX(int idx);
 
   double toNumber(int idx);
 
-  double toNumberX(int idx);
+  double? toNumberX(int idx);
 
-  String toStr(int idx);
+  String? toStr(int idx);
 
-  DartFunction toDartFunction(int idx);
+  DartFunction? toDartFunction(int idx);
 
-  Object toPointer(int idx);
+  Object? toPointer(int idx);
 
-  Userdata toUserdata<T>(int idx);
+  Userdata? toUserdata<T>(int idx);
 
   int rawLen(int idx);
 
@@ -82,13 +82,13 @@ abstract class LuaBasicAPI {
 
   void pushBoolean(bool b);
 
-  void pushInteger(int n);
+  void pushInteger(int? n);
 
   void pushNumber(double n);
 
-  void pushString(String s);
+  void pushString(String? s);
 
-  void pushFString(String fmt, [List<Object> a]);
+  void pushFString(String fmt, [List<Object>? a]);
 
   void pushDartFunction(DartFunction f);
 
@@ -112,7 +112,7 @@ abstract class LuaBasicAPI {
 
   LuaType getTable(int idx);
 
-  LuaType getField(int idx, String k);
+  LuaType getField(int idx, String? k);
 
   LuaType getI(int idx, int i);
 
@@ -127,9 +127,9 @@ abstract class LuaBasicAPI {
 /* set functions (stack -> Lua) */
   void setTable(int idx);
 
-  void setField(int idx, String k);
+  void setField(int idx, String? k);
 
-  void setI(int idx, int i);
+  void setI(int idx, int? i);
 
   void rawSet(int idx);
 
@@ -142,7 +142,7 @@ abstract class LuaBasicAPI {
   void register(String name, DartFunction f);
 
 /* 'load' and 'call' functions (load and run Lua code) */
-  ThreadStatus load(Uint8List chunk, String chunkName, String mode);
+  ThreadStatus load(Uint8List chunk, String chunkName, String? mode);
 
   void call(int nArgs, int nResults);
 

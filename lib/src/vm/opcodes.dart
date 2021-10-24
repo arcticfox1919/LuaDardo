@@ -77,7 +77,7 @@ class OpCode{
    final OpArgMask argCMode; // C arg mode
    final OpMode opMode; // op mode
    final String name;
-   final OpAction action;
+   final OpAction? action;
 
   const OpCode(this.testFlag, this.setAFlag,
       this.argBMode, this.argCMode,this.opMode,this.name,this.action);

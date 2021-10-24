@@ -6,7 +6,7 @@ import 'lua_value.dart';
 
 
 class Arithmetic{
-  static final _integerOps =  <Function>[
+  static final _integerOps =  <Function?>[
         (a, b) => a + b,     // lua_op_add
         (a, b) => a - b,     // lua_op_sub
         (a, b) => a * b,     // lua_op_mul
@@ -24,7 +24,7 @@ class Arithmetic{
   ];
 
 
-  static final _floatOps =  <Function>[
+  static final _floatOps =  <Function?>[
         (a, b) => a + b,     // lua_op_add
         (a, b) => a - b,     // lua_op_sub
         (a, b) => a * b,     // lua_op_mul
@@ -58,16 +58,16 @@ class Arithmetic{
     "__bnot"
   ];
 
-  static Object arith(Object a, Object b, ArithOp op, LuaStateImpl ls) {
-    Function integerFunc = _integerOps[op.index];
-    Function floatFunc = _floatOps[op.index];
+  static Object? arith(Object? a, Object? b, ArithOp op, LuaStateImpl ls) {
+    Function? integerFunc = _integerOps[op.index];
+    Function? floatFunc = _floatOps[op.index];
 
     if (floatFunc == null) { // bitwise
-      int x = LuaValue.otoInteger(a);
+      int? x = LuaValue.otoInteger(a);
       if (x != null) {
-        int y = LuaValue.otoInteger(b);
+        int? y = LuaValue.otoInteger(b);
         if (y != null) {
-          return integerFunc.call(x, y);
+          return integerFunc!.call(x, y);
         }
       }
     } else { // arith
@@ -76,15 +76,15 @@ class Arithmetic{
           return integerFunc.call(a, b);
         }
       }
-      double x = LuaValue.toFloat(a);
+      double? x = LuaValue.toFloat(a);
       if (x != null) {
-        double y = LuaValue.toFloat(b);
+        double? y = LuaValue.toFloat(b);
         if (y != null) {
           return floatFunc.call(x, y);
         }
       }
     }
-    Object mm = ls.getMetamethod(a, b, _metamethods[op.index]);
+    Object? mm = ls.getMetamethod(a, b, _metamethods[op.index]);
     if (mm != null) {
       return ls.callMetamethod(a, b, mm);
     }
