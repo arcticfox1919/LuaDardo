@@ -34,8 +34,8 @@ class OSLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-os.difftime
 // lua-5.3.4/src/loslib.c#os_difftime()
   static int _osDiffTime(LuaState ls) {
-    var t2 = ls.checkInteger(1);
-    var t1 = ls.checkInteger(2);
+    var t2 = ls.checkInteger(1)!;
+    var t1 = ls.checkInteger(2)!;
     ls.pushInteger(t2 - t1);
     return 1;
   }
@@ -89,7 +89,7 @@ class OSLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-os.date
 // lua-5.3.4/src/loslib.c#os_date()
   static int _osDate(LuaState ls) {
-    var format = ls.optString(1, "%c");
+    var format = ls.optString(1, "%c")!;
     DateTime t;
     if (ls.isInteger(2)) {
       t = DateTime.now().add(Duration(seconds: ls.toInteger(2)));
@@ -136,7 +136,7 @@ class OSLib {
     return date.day + sum;
   }
 
-  static int _setField(LuaState ls, String key, int value) {
+  static void _setField(LuaState ls, String key, int value) {
     ls.pushInteger(value);
     ls.setField(-2, key);
   }
@@ -144,7 +144,7 @@ class OSLib {
 // os.remove (filename)
 // http://www.lua.org/manual/5.3/manual.html#pdf-os.remove
   static int _osRemove(LuaState ls) {
-    var filename = ls.checkString(1);
+    var filename = ls.checkString(1)!;
 
     try {
       File(filename).deleteSync();
@@ -160,8 +160,8 @@ class OSLib {
 // os.rename (oldname, newname)
 // http://www.lua.org/manual/5.3/manual.html#pdf-os.rename
   static int _osRename(LuaState ls) {
-    var oldName = ls.checkString(1);
-    var newName = ls.checkString(2);
+    var oldName = ls.checkString(1)!;
+    var newName = ls.checkString(2)!;
 
     try {
       File(oldName).renameSync(newName);
@@ -185,7 +185,7 @@ class OSLib {
 // lua-5.3.4/src/loslib.c#os_getenv()
   static int _osGetEnv(LuaState ls) {
     var key = ls.checkString(1);
-    var env = Platform.environment[key];
+    var env = Platform.environment[key!]!;
 
     if (env.isNotEmpty) {
       ls.pushString(env);
@@ -198,7 +198,7 @@ class OSLib {
 // os.execute ([command])
 // http://www.lua.org/manual/5.3/manual.html#pdf-os.execute
   static int _osExecute(LuaState ls) {
-    var cmd = ls.checkString(1);
+    var cmd = ls.checkString(1)!;
     var args = cmd.split(" ");
     if(args.length > 1){
       var comm = args.removeAt(0);
@@ -220,10 +220,9 @@ class OSLib {
         exit(1); // todo
       }
     } else {
-      var code = ls.optInteger(1, 1);
+      var code = ls.optInteger(1, 1)!;
       exit(code);
     }
-    return 0;
   }
 
 // os.setlocale (locale [, category])

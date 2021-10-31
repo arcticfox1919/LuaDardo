@@ -6,7 +6,8 @@ import 'package:test/test.dart';
 
 int callLuaAdd(int a,int b){
   Directory.current = './test/module/';
-  LuaState ls;
+  late LuaState ls;
+
   try{
     ls = LuaState.newState();
     ls.openLibs();

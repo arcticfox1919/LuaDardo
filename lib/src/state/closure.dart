@@ -4,16 +4,16 @@ import 'upvalue_holder.dart';
 
 class Closure {
 
-  final Prototype proto;
-  final DartFunction dartFunc;
-  final List<UpvalueHolder> upvals;
+  final Prototype? proto;
+  final DartFunction? dartFunc;
+  final List<UpvalueHolder?> upvals;
 
-  Closure(this.proto) :
+  Closure(Prototype this.proto) :
         this.dartFunc = null,
-        this.upvals = List<UpvalueHolder>(proto.upvalues.length);
+        this.upvals = List<UpvalueHolder?>.filled(proto.upvalues.length,null);
 
   Closure.DartFunc(this.dartFunc, int nUpvals) :
         this.proto = null,
-        this.upvals = List<UpvalueHolder>(nUpvals);
+        this.upvals = List<UpvalueHolder?>.filled(nUpvals,null);
 
 }

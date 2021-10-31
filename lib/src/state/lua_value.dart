@@ -7,7 +7,7 @@ import 'lua_table.dart';
 
 class LuaValue {
 
-  static LuaType typeOf(Object val) {
+  static LuaType typeOf(Object? val) {
     if (val == null) {
       return LuaType.luaNil;
     } else if (val is bool) {
@@ -27,7 +27,7 @@ class LuaValue {
     }
   }
 
-  static bool toBoolean(Object val) {
+  static bool toBoolean(Object? val) {
     if (val == null) {
       return false;
     } else if (val is bool) {
@@ -38,7 +38,7 @@ class LuaValue {
   }
 
   // http://www.lua.org/manual/5.3/manual.html#3.4.3
-  static double toFloat(Object val) {
+  static double? toFloat(Object? val) {
     if (val is double) {
       return val.toDouble();
     } else if (val is int) {
@@ -51,7 +51,7 @@ class LuaValue {
   }
 
   // http://www.lua.org/manual/5.3/manual.html#3.4.3
-  static int otoInteger(Object val) {
+  static int? otoInteger(Object? val) {
     if (val is int) {
       return val;
     } else if (val is double) {
@@ -64,12 +64,12 @@ class LuaValue {
     }
   }
 
-  static int stoInteger(String s) {
-    int i = LuaNumber.parseInteger(s);
+  static int? stoInteger(String s) {
+    int? i = LuaNumber.parseInteger(s);
     if (i != null) {
       return i;
     }
-    double f = LuaNumber.parseFloat(s);
+    double? f = LuaNumber.parseFloat(s);
     if (f != null && LuaNumber.isInteger(f)) {
       return f.toInt();
     }

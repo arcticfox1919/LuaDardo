@@ -86,7 +86,6 @@ class CharSequence {
   }
 
   static int count(String src,String ch){
-    if(src == null) return -1;
     if(src.isEmpty) return 0;
 
     var sum=0;

@@ -28,10 +28,10 @@ class _Header {
   Uint8List signature = Uint8List(4);
 
   /// 版本号。值为大版本号乘以16加小版本号
-  int version;
+  int? version;
 
   /// 格式号
-  int format;
+  int? format;
 
   /// 前两个字节是0x1993，是Lua 1.0发布的年份；
   /// 后四个字节依次是回车符（0x0D）、换行符（0x0A）、
@@ -40,64 +40,64 @@ class _Header {
 
   /// 分别记录cint、size_t、Lua虚拟机指令、
   /// Lua整数和Lua浮点数5种数据类型在二进制的字节长度
-  int cintSize;
-  int sizetSize;
-  int instructionSize;
-  int luaIntegerSize;
-  int luaNumberSize;
+  int? cintSize;
+  int? sizetSize;
+  int? instructionSize;
+  int? luaIntegerSize;
+  int? luaNumberSize;
 
   /// 存放Lua整数值0x5678
-  int luacInt;
+  int? luacInt;
 
   /// 存放Lua浮点数370.5
-  double luacNum;
+  double? luacNum;
 }
 
 class Prototype {
   /// 源文件名
-  String source;
+  String? source;
 
   /// 起始行号
-  int lineDefined;
+  int? lineDefined;
 
   /// 终止行号
-  int lastLineDefined;
+  int? lastLineDefined;
 
   /// 函数固定参数个数
-  int numParams;
+  int? numParams;
 
   /// 是否有变长参数
-  int isVararg;
+  int? isVararg;
 
   /// 寄存器数量
-  int maxStackSize;
+  late int maxStackSize;
 
   /// 指令表
-  Uint32List code;
+  late Uint32List code;
 
   /// 常量表
-  List<Object> constants;
+  late List<Object?> constants;
 
   /// Upvalue表
-  List<Upvalue> upvalues;
+  late List<Upvalue?> upvalues;
 
   /// 子函数原型表
-  List<Prototype> protos;
+  late List<Prototype?> protos;
 
   /// 行号表
-  Uint32List lineInfo;
+  late Uint32List lineInfo;
 
   /// 局部变量表
-  List<LocVar> locVars;
+  late List<LocVar?> locVars;
 
   /// Upvalue名字列表
-  List<String> upvalueNames;
+  late List<String?> upvalueNames;
 
   Prototype();
 
   Prototype.from(ByteDataReader data, String parentSource) {
     source = BinaryChunk.getLuaString(data);
-    if (source.isEmpty) {
+    if (source!.isEmpty) {
       source = parentSource;
     }
 
@@ -114,7 +114,7 @@ class Prototype {
     }
 
     len = data.readUint32();
-    constants = List(len);
+    constants = List.filled(len, null);
     for (var i = 0; i < len; i++) {
       var kind = data.readUint8();
       switch (kind) {
@@ -140,13 +140,13 @@ class Prototype {
     }
 
     len = data.readUint32();
-    upvalues = List(len);
+    upvalues = List.filled(len, null);
     for (var i = 0; i < len; i++) {
       upvalues[i] = Upvalue.from(data);
     }
 
     len = data.readUint32();
-    protos = List(len);
+    protos = List.filled(len, null);
     for (var i = 0; i < len; i++) {
       protos[i] = Prototype.from(data, parentSource);
     }
@@ -158,14 +158,14 @@ class Prototype {
     }
 
     len = data.readUint32();
-    locVars = List(len);
+    locVars = List.filled(len, null);
     for (var i = 0; i < len; i++) {
       locVars[i] = LocVar.from(data);
     }
 
     len = data.readUint32();
 
-    upvalueNames = List(len);
+    upvalueNames = List.filled(len, null);
     for (var i = 0; i < len; i++) {
       upvalueNames[i] = BinaryChunk.getLuaString(data);
     }
@@ -173,8 +173,8 @@ class Prototype {
 }
 
 class Upvalue {
-  int instack;
-  int idx;
+  int? instack;
+  int? idx;
 
   Upvalue();
 
@@ -185,9 +185,9 @@ class Upvalue {
 }
 
 class LocVar {
-  String varName;
-  int startPC;
-  int endPC;
+  String? varName;
+  int? startPC;
+  int? endPC;
 
   LocVar();
   LocVar.from(ByteDataReader blob){
@@ -198,10 +198,10 @@ class LocVar {
 }
 
 class BinaryChunk {
-  _Header header;
+  _Header? header;
 
   /// 解析二进制
-  static Prototype undump(Uint8List data) {
+  static Prototype unDump(Uint8List data) {
     var byteReader = ByteDataReader(endian:Endian.little)
       ..add(data);
     _checkHead(byteReader);
@@ -276,7 +276,7 @@ class BinaryChunk {
   }
 
   static bool isBinaryChunk(Uint8List data) {
-    if (data == null || data.length < 4) {
+    if (data.length < 4) {
       return false;
     }
     for (int i = 0; i < 4; i++) {

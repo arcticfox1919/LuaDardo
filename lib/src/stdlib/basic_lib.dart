@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import '../api/lua_state.dart';
 import '../api/lua_type.dart';
 
 class BasicLib {
-  static const Map<String, DartFunction> _baseFuncs = {
+  static const Map<String, DartFunction?> _baseFuncs = {
     "print": _basePrint,
     "assert": _baseAssert,
     "error": _baseError,
@@ -50,12 +51,12 @@ class BasicLib {
 // lua-5.3.4/src/lbaselib.c#luaB_print()
   static int _basePrint(LuaState ls) {
     int n = ls.getTop(); /* number of arguments */
-    ls.getGlobal("tostring");
+    ls.getGlobal('tostring');
     for (int i = 1; i <= n; i++) {
       ls.pushValue(-1); /* function to be called */
       ls.pushValue(i); /* value to print */
       ls.call(1, 1);
-      String s = ls.toStr(-1); /* get result */
+      String? s = ls.toStr(-1); /* get result */
       if (s == null) {
         return ls.error2("'tostring' must return a string to 'print'");
       }
@@ -90,9 +91,9 @@ class BasicLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-error
 // lua-5.3.4/src/lbaselib.c#luaB_error()
   static int _baseError(LuaState ls) {
-    int level = ls.optInteger(2, 1);
+    int? level = ls.optInteger(2, 1);
     ls.setTop(1);
-    if (ls.type(1) == LuaType.luaString && level > 0) {
+    if (ls.type(1) == LuaType.luaString && level! > 0) {
       // ls.where(level) /* add extra information */
       // ls.pushValue(1)
       // ls.concat(2)
@@ -109,7 +110,7 @@ class BasicLib {
       ls.pushInteger(n - 1);
       return 1;
     } else {
-      int i = ls.checkInteger(1);
+      int i = ls.checkInteger(1)!;
       if (i < 0) {
         i = n + i;
       } else if (i > n) {
@@ -132,7 +133,7 @@ class BasicLib {
   }
 
   static int iPairsAux(LuaState ls) {
-    int i = ls.checkInteger(2) + 1;
+    int i = ls.checkInteger(2)! + 1;
     ls.pushInteger(i);
     return ls.getI(1, i) == LuaType.luaNil ? 1 : 2;
   }
@@ -172,13 +173,13 @@ class BasicLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-load
 // lua-5.3.4/src/lbaselib.c#luaB_load()
   static int _baseLoad(LuaState ls) {
-    String chunk = ls.toStr(1);
-    String mode = ls.optString(3, "bt");
+    String? chunk = ls.toStr(1);
+    String? mode = ls.optString(3, "bt");
     int env = !ls.isNone(4) ? 4 : 0; /* 'env' index or 0 if no 'env' */
     if (chunk != null) {
       /* loading a string? */
-      String chunkName = ls.optString(2, chunk);
-      ThreadStatus status = ls.load(utf8.encode(chunk), chunkName, mode);
+      var chunkName = ls.optString(2, chunk);
+      ThreadStatus status = ls.load(utf8.encode(chunk) as Uint8List, chunkName!, mode);
       return loadAux(ls, status, env);
     } else {
       /* loading from a reader function */
@@ -206,8 +207,8 @@ class BasicLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-loadfile
 // lua-5.3.4/src/lbaselib.c#luaB_loadfile()
   static int _baseLoadFile(LuaState ls) {
-    String fname = ls.optString(1, "");
-    String mode = ls.optString(1, "bt");
+    String? fname = ls.optString(1, "");
+    String? mode = ls.optString(1, "bt");
     int env = !ls.isNone(3) ? 3 : 0; /* 'env' index or 0 if no 'env' */
     ThreadStatus status = ls.loadFileX(fname, mode);
     return loadAux(ls, status, env);
@@ -217,7 +218,7 @@ class BasicLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-dofile
 // lua-5.3.4/src/lbaselib.c#luaB_dofile()
   static int _baseDoFile(LuaState ls) {
-    String fname = ls.optString(1, "bt");
+    String? fname = ls.optString(1, "bt");
     ls.setTop(1);
     if (ls.loadFile(fname) != ThreadStatus.lua_ok) {
       return ls.error();
@@ -346,7 +347,7 @@ class BasicLib {
         ls.setTop(1); /* yes; return it */
         return 1;
       } else {
-        String s = ls.toStr(1);
+        String? s = ls.toStr(1);
         if (s != null) {
           if (ls.stringToNumber(s)) {
             return 1; /* successful conversion to number */
@@ -355,8 +356,8 @@ class BasicLib {
       }
     } else {
       ls.checkType(1, LuaType.luaString); /* no numbers as strings */
-      String s = ls.toStr(1).trim();
-      int base = ls.checkInteger(2);
+      String s = ls.toStr(1)!.trim();
+      int base = ls.checkInteger(2)!;
       ls.argCheck(2 <= base && base <= 36, 2, "base out of range");
       try {
         int n = int.parse(s, radix: base);

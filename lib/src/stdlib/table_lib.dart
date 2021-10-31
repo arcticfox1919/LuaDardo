@@ -31,8 +31,8 @@ class TableLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.move
 // lua-5.3.4/src/ltablib.c#tremove()
   static int _tabMove(LuaState ls) {
-    var f = ls.checkInteger(2);
-    var e = ls.checkInteger(3);
+    var f = ls.checkInteger(2)!;
+    var e = ls.checkInteger(3)!;
     var t = ls.checkInteger(4);
     var tt = 1; /* destination table */
     if (!ls.isNoneOrNil(5)) {
@@ -46,7 +46,7 @@ class TableLib {
       ls.argCheck(
           f > 0 || e < lua_maxinteger + f, 3, "too many elements to move");
       var n = e - f + 1; /* number of elements to move */
-      ls.argCheck(t <= lua_maxinteger - n + 1, 4, "destination wrap around");
+      ls.argCheck(t! <= lua_maxinteger - n + 1, 4, "destination wrap around");
       if (t > e || t <= f || (tt != 1 && !ls.compare(1, tt, CmpOp.lua_op_eq))) {
         for (i = 0; i < n; i++) {
           ls.getI(1, f + i);
@@ -67,8 +67,8 @@ class TableLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.insert
 // lua-5.3.4/src/ltablib.c#tinsert()
   static int _tabInsert(LuaState ls) {
-    var e = _auxGetN(ls, 1, TAB_RW) + 1; /* first empty element */
-    int pos; /* where to insert new element */
+    var e = _auxGetN(ls, 1, TAB_RW)! + 1; /* first empty element */
+    int? pos; /* where to insert new element */
     switch (ls.getTop()) {
       case 2:
         /* called with only 2 arguments */
@@ -78,7 +78,7 @@ class TableLib {
       case 3:
         pos = ls.checkInteger(2);
         /* 2nd argument is the position */
-        ls.argCheck(1 <= pos && pos <= e, 2, "position out of bounds");
+        ls.argCheck(1 <= pos! && pos <= e, 2, "position out of bounds");
         for (var i = e; i > pos; i--) {
           /* move up elements */
           ls.getI(1, i - 1);
@@ -96,8 +96,8 @@ class TableLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.remove
 // lua-5.3.4/src/ltablib.c#tremove()
   static int _tabRemove(LuaState ls) {
-    var size = _auxGetN(ls, 1, TAB_RW);
-    var pos = ls.optInteger(2, size);
+    var size = _auxGetN(ls, 1, TAB_RW)!;
+    var pos = ls.optInteger(2, size)!;
     if (pos != size) {
       /* validate 'pos' if given */
       ls.argCheck(1 <= pos && pos <= size + 1, 1, "position out of bounds");
@@ -118,15 +118,15 @@ class TableLib {
   static int _tabConcat(LuaState ls) {
     var tabLen = _auxGetN(ls, 1, TAB_R);
     var sep = ls.optString(2, "");
-    var i = ls.optInteger(3, 1);
-    var j = ls.optInteger(4, tabLen);
+    var i = ls.optInteger(3, 1)!;
+    var j = ls.optInteger(4, tabLen)!;
 
     if (i > j) {
       ls.pushString("");
       return 1;
     }
 
-    var buf = List<String>(j - i + 1);
+    var buf = List<String?>.filled(j - i + 1,null);
     for (var k = i; k > 0 && k <= j; k++) {
       ls.getI(1, k);
       if (!ls.isString(-1)) {
@@ -136,12 +136,12 @@ class TableLib {
       buf[k - i] = ls.toStr(-1);
       ls.pop(1);
     }
-    ls.pushString(buf.join(sep));
+    ls.pushString(buf.join(sep!));
 
     return 1;
   }
 
-  static int _auxGetN(LuaState ls, int n, int w) {
+  static int? _auxGetN(LuaState ls, int n, int w) {
     _checkTab(ls, n, w | TAB_L);
     return ls.len2(n);
   }
@@ -154,7 +154,7 @@ class TableLib {
     if (ls.type(arg) != LuaType.luaTable) {
       /* is it not a table? */
       var n = 1; /* number of elements to pop */
-      var nL = List<int>(1)..[0] = n;
+      var nL = List<int>.filled(1,0)..[0] = n;
       if (ls.getMetatable(arg) && /* must have metatable */
           (what & TAB_R != 0 || _checkField(ls, "__index", nL)) &&
           (what & TAB_W != 0 || _checkField(ls, "__newindex", nL)) &&
@@ -194,8 +194,8 @@ class TableLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.unpack
 // lua-5.3.4/src/ltablib.c#unpack()
   static int _tabUnpack(LuaState ls) {
-    var i = ls.optInteger(2, 1);
-    var e = ls.optInteger(3, ls.len2(1));
+    var i = ls.optInteger(2, 1)!;
+    var e = ls.optInteger(3, ls.len2(1))!;
     if (i > e) {
       /* empty range */
       return 0;
@@ -220,7 +220,7 @@ class TableLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-table.sort
   static int _tabSort(LuaState ls) {
     var sort = _SortHelper(ls);
-    var len = sort.len();
+    var len = sort.len()!;
     ls.argCheck(len < MAX_LEN, 1, "array too big");
     sort.quickSort(0, len - 1);
     return 0;
@@ -232,7 +232,7 @@ class _SortHelper {
 
   _SortHelper(this.ls);
 
-  int len() {
+  int? len() {
     return ls.len2(1);
   }
 

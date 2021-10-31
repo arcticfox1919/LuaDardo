@@ -80,10 +80,19 @@ class ForNumStat extends Stat {
   int lineOfFor;
   int lineOfDo;
   String varName;
-  Exp InitExp;
-  Exp LimitExp;
-  Exp StepExp;
+  Exp initExp;
+  Exp limitExp;
+  Exp stepExp;
   Block block;
+
+  ForNumStat(
+      {required this.lineOfFor,
+      required this.lineOfDo,
+      required this.varName,
+      required this.initExp,
+      required this.limitExp,
+      required this.stepExp,
+      required this.block});
 }
 
 class ForInStat extends Stat {
@@ -91,6 +100,12 @@ class ForInStat extends Stat {
   List<String> nameList;
   List<Exp> expList;
   Block block;
+
+  ForInStat(
+      {required this.lineOfDo,
+      required this.nameList,
+      required this.expList,
+      required this.block});
 }
 
 class LocalVarDeclStat extends Stat {
@@ -98,8 +113,8 @@ class LocalVarDeclStat extends Stat {
   List<Exp> expList;
 
   LocalVarDeclStat(int lastLine, List<String> nameList, List<Exp> expList)
-      : this.nameList = nameList ?? [],
-        this.expList = expList ?? [] {
+      : this.nameList = nameList,
+        this.expList = expList{
     super.lastLine = lastLine;
   }
 }

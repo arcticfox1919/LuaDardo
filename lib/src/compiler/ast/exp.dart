@@ -47,8 +47,7 @@ class VarargExp extends Exp {
 class IntegerExp extends Exp {
   int val;
 
-  IntegerExp(int line, int val) {
-    this.val = val;
+  IntegerExp(int line, this.val) {
     super.line = line;
   }
 }
@@ -65,9 +64,9 @@ class FloatExp extends Exp {
 class StringExp extends Exp {
   String str;
 
-  StringExp.fromToken(Token token) {
+  StringExp.fromToken(Token token):this.str = token.value {
     super.line = token.line;
-    this.str = token.value;
+
   }
 
   StringExp(int line, this.str) {
@@ -84,12 +83,11 @@ class NameExp extends PrefixExp {
 }
 
 class UnopExp extends Exp {
-  TokenKind op; // operator
+  late TokenKind op; // operator
   Exp exp;
 
   UnopExp(Token op, this.exp) {
     super.line = op.line;
-    this.exp = exp;
 
     if (op.kind == TokenKind.TOKEN_OP_MINUS) {
       this.op = TokenKind.TOKEN_OP_UNM;
@@ -102,7 +100,7 @@ class UnopExp extends Exp {
 }
 
 class BinopExp extends Exp {
-  TokenKind op; // operator
+  late TokenKind op; // operator
   Exp exp1;
   Exp exp2;
 
@@ -126,14 +124,17 @@ class ConcatExp extends Exp {
 }
 
 class TableConstructorExp extends Exp {
-  List<Exp> keyExps = <Exp>[];
+  List<Exp?> keyExps = <Exp?>[];
   List<Exp> valExps = <Exp>[];
 }
 
 class FuncDefExp extends Exp {
   List<String> parList;
-  bool IsVararg;
+  bool isVararg;
   Block block;
+
+  FuncDefExp(
+      {required this.parList, required this.block, required this.isVararg});
 }
 
 class ParensExp extends PrefixExp {
@@ -153,6 +154,8 @@ class TableAccessExp extends PrefixExp {
 
 class FuncCallExp extends PrefixExp {
   Exp prefixExp;
-  StringExp nameExp;
+  StringExp? nameExp;
   List<Exp> args;
+
+  FuncCallExp({required this.prefixExp,required this.nameExp,required this.args});
 }

@@ -70,16 +70,17 @@ class PrefixExpParser {
 
   // functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
   static FuncCallExp finishFuncCallExp(Lexer lexer, Exp prefixExp) {
-    FuncCallExp fcExp = FuncCallExp();
-    fcExp.prefixExp = prefixExp;
-    fcExp.nameExp = parseNameExp(lexer);
+    FuncCallExp fcExp = FuncCallExp(
+      prefixExp: prefixExp,
+      nameExp: parseNameExp(lexer),
+      args: parseArgs(lexer)
+    );
     fcExp.line = lexer.line; // todo
-    fcExp.args = parseArgs(lexer);
     fcExp.lastLine = lexer.line;
     return fcExp;
   }
 
-  static StringExp parseNameExp(Lexer lexer) {
+  static StringExp? parseNameExp(Lexer lexer) {
     if (lexer.LookAhead() == TokenKind.TOKEN_SEP_COLON) {
       lexer.nextToken();
       Token name = lexer.nextIdentifier();
@@ -93,18 +94,17 @@ class PrefixExpParser {
     switch (lexer.LookAhead()) {
       case TokenKind.TOKEN_SEP_LPAREN: // ‘(’ [explist] ‘)’
         lexer.nextToken(); // TOKEN_SEP_LPAREN
-        List<Exp> args = null;
+        List<Exp>? args;
         if (lexer.LookAhead() != TokenKind.TOKEN_SEP_RPAREN) {
           args = ExpParser.parseExpList(lexer);
         }
         lexer.nextTokenOfKind(TokenKind.TOKEN_SEP_RPAREN);
-        return args;
+        return args ?? List<Exp>.empty();
       case TokenKind.TOKEN_SEP_LCURLY: // ‘{’ [fieldlist] ‘}’
-        return List<Exp>(1)..[0] = ExpParser.parseTableConstructorExp(lexer);
+        return <Exp>[ExpParser.parseTableConstructorExp(lexer)];
       default: // LiteralString
         Token str = lexer.nextTokenOfKind(TokenKind.TOKEN_STRING);
-        return List<Exp>(1)..[0] = StringExp.fromToken(str);
+        return <Exp>[StringExp.fromToken(str)];
     }
   }
-
 }

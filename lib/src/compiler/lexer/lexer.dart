@@ -13,8 +13,8 @@ class Lexer {
   int line;
 
   // to support lookahead
-  Token cachedNextToken;
-  int lineBackup;
+  Token? cachedNextToken;
+  int? lineBackup;
 
   StringBuffer _buff = StringBuffer();
 
@@ -25,10 +25,10 @@ class Lexer {
       lineBackup = line;
       cachedNextToken = nextToken();
     }
-    return cachedNextToken.kind;
+    return cachedNextToken!.kind;
   }
 
-  Token nextTokenOfKind(TokenKind kind) {
+  Token nextTokenOfKind(TokenKind? kind) {
     Token token = nextToken();
     if (token.kind != kind) {
       error("syntax error near '${token.value}'");
@@ -42,7 +42,7 @@ class Lexer {
 
   Token nextToken() {
     if (cachedNextToken != null) {
-      Token token = cachedNextToken;
+      Token token = cachedNextToken!;
       cachedNextToken = null;
       return token;
     }
@@ -77,7 +77,6 @@ class Lexer {
           chunk.next(1);
           return  Token(line, TokenKind.TOKEN_SEP_COLON, ":");
         }
-        break;
       case '/':
         if (chunk.startsWith("//")) {
           chunk.next(2);
@@ -86,7 +85,6 @@ class Lexer {
           chunk.next(1);
           return  Token(line, TokenKind.TOKEN_OP_DIV, "/");
         }
-        break;
       case '~':
         if (chunk.startsWith("~=")) {
           chunk.next(2);
@@ -95,7 +93,6 @@ class Lexer {
           chunk.next(1);
           return  Token(line, TokenKind.TOKEN_OP_WAVE, "~");
         }
-        break;
       case '=':
         if (chunk.startsWith("==")) {
           chunk.next(2);
@@ -104,7 +101,6 @@ class Lexer {
           chunk.next(1);
           return  Token(line, TokenKind.TOKEN_OP_ASSIGN, "=");
         }
-        break;
       case '<':
         if (chunk.startsWith("<<")) {
           chunk.next(2);
@@ -116,7 +112,6 @@ class Lexer {
           chunk.next(1);
           return  Token(line, TokenKind.TOKEN_OP_LT, "<");
         }
-        break;
       case '>':
         if (chunk.startsWith(">>")) {
           chunk.next(2);
@@ -128,7 +123,6 @@ class Lexer {
           chunk.next(1);
           return  Token(line, TokenKind.TOKEN_OP_GT, ">");
         }
-        break;
       case '.':
         if (chunk.startsWith("...")) {
           chunk.next(3);
@@ -145,7 +139,6 @@ class Lexer {
         }else{  // is digit
           return Token(line, TokenKind.TOKEN_NUMBER, readNumeral());
         }
-        break;
       case '[':  // long string or simply '['
         int sep = _skip_sep();
         if (sep >= 0) {
@@ -252,7 +245,7 @@ class Lexer {
           continue;
         case '\\':
         {
-            int c;
+            late int c;
             // do not save the '\'
             chunk.next(1);
             switch (chunk.current) {
@@ -324,7 +317,7 @@ class Lexer {
                   c = 0;
                   /* 最多读取3位数字 */
                   for (int i = 0; i < 3 && CharSequence.isDigit(chunk.current); i++) {
-                    c = 10 * c + (chunk.current - '0');
+                    c = 10 * c + (chunk.current - '0') as int;
                       chunk.next(1);
                   }
                   _save_c(c);
@@ -382,7 +375,7 @@ class Lexer {
       int trim_by = 2 + sep;
       return rawToken.substring(trim_by, rawToken.length - trim_by);
     } else
-      return null;
+      return '';
   }
 
   int _skip_sep() {
@@ -414,7 +407,7 @@ class Lexer {
     return _buff.toString();
   }
 
-  int _line() {
+  int? _line() {
     return cachedNextToken != null ? lineBackup : line;
   }
 

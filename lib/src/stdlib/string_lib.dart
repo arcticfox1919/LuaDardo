@@ -50,7 +50,7 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.len
 // lua-5.3.4/src/lstrlib.c#str_len()
   static int _strLen(LuaState ls) {
-    String s = ls.checkString(1);
+    String s = ls.checkString(1)!;
     ls.pushInteger(s.length);
     return 1;
   }
@@ -59,9 +59,9 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.rep
 // lua-5.3.4/src/lstrlib.c#str_rep()
   static int _strRep(LuaState ls) {
-    String s = ls.checkString(1);
-    int n = ls.checkInteger(2);
-    String sep = ls.optString(3, "");
+    String? s = ls.checkString(1);
+    int n = ls.checkInteger(2)!;
+    String? sep = ls.optString(3, "");
 
     if (n <= 0) {
       ls.pushString("");
@@ -73,7 +73,7 @@ class StringLib {
         a.add(s);
       }
 
-      ls.pushString(a.join(sep));
+      ls.pushString(a.join(sep!));
     }
 
     return 1;
@@ -83,7 +83,7 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.reverse
 // lua-5.3.4/src/lstrlib.c#str_reverse()
   static int _strReverse(LuaState ls) {
-    String s = ls.checkString(1);
+    String s = ls.checkString(1)!;
 
     var strLen = s.length;
     if (strLen > 1) {
@@ -101,7 +101,7 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.lower
 // lua-5.3.4/src/lstrlib.c#str_lower()
   static int _strLower(LuaState ls) {
-    String s = ls.checkString(1);
+    String s = ls.checkString(1)!;
     ls.pushString(s.toLowerCase());
     return 1;
   }
@@ -110,7 +110,7 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.upper
 // lua-5.3.4/src/lstrlib.c#str_upper()
   static int _strUpper(LuaState ls) {
-    String s = ls.checkString(1);
+    String s = ls.checkString(1)!;
     ls.pushString(s.toUpperCase());
     return 1;
   }
@@ -119,10 +119,10 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.sub
 // lua-5.3.4/src/lstrlib.c#str_sub()
   static int _strSub(LuaState ls) {
-    String s = ls.checkString(1);
+    String s = ls.checkString(1)!;
     var sLen = s.length;
-    var i = posRelat(ls.checkInteger(2), sLen);
-    var j = posRelat(ls.optInteger(3, -1), sLen);
+    var i = posRelat(ls.checkInteger(2)!, sLen);
+    var j = posRelat(ls.optInteger(3, -1)!, sLen);
 
     if (i < 1) {
       i = 1;
@@ -144,10 +144,10 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.byte
 // lua-5.3.4/src/lstrlib.c#str_byte()
   static int _strByte(LuaState ls) {
-    String s = ls.checkString(1);
+    String s = ls.checkString(1)!;
     var sLen = s.length;
-    var i = posRelat(ls.optInteger(2, 1), sLen);
-    var j = posRelat(ls.optInteger(3, i), sLen);
+    var i = posRelat(ls.optInteger(2, 1)!, sLen);
+    var j = posRelat(ls.optInteger(3, i)!, sLen);
 
     if (i < 1) {
       i = 1;
@@ -179,9 +179,9 @@ class StringLib {
     var nArgs = ls.getTop();
 
     // s = make([]byte, nArgs)
-    var s = List<int>(nArgs);
+    var s = List<int>.filled(nArgs,0);
     for (var i = 1; i <= nArgs; i++) {
-      var c = ls.checkInteger(i);
+      var c = ls.checkInteger(i)!;
       ls.argCheck((c & 0xff) == c, i, "value out of range");
       s[i - 1] = c;
     }
@@ -228,7 +228,7 @@ class StringLib {
 // string.format (formatstring, ···)
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.format
   static int _strFormat(LuaState ls) {
-    var fmtStr = ls.checkString(1);
+    var fmtStr = ls.checkString(1)!;
     if (fmtStr.length <= 1 || fmtStr.indexOf('%') < 0) {
       ls.pushString(fmtStr);
       return 1;
@@ -238,12 +238,12 @@ class StringLib {
     var arr = parseFmtStr(fmtStr);
 
     for (var i = 0; i < arr.length; i++) {
-      if (arr[i][0] == '%') {
+      if (arr[i]![0] == '%') {
         if (arr[i] == "%%") {
           arr[i] = "%";
         } else {
           argIdx += 1;
-          arr[i] = _fmtArg(arr[i], ls, argIdx);
+          arr[i] = _fmtArg(arr[i]!, ls, argIdx);
         }
       }
     }
@@ -252,12 +252,12 @@ class StringLib {
     return 1;
   }
 
-  static List<String> parseFmtStr(String fmt) {
+  static List<String?> parseFmtStr(String fmt) {
     if (fmt == "" || fmt.indexOf('%') < 0) {
       return [fmt];
     }
 
-    var parsed = <String>[];
+    var parsed = <String?>[];
     for (;;) {
       if (fmt == "") {
         break;
@@ -282,7 +282,7 @@ class StringLib {
     return parsed;
   }
 
-  static String _fmtArg(String tag, LuaState ls, int argIdx) {
+  static String? _fmtArg(String tag, LuaState ls, int argIdx) {
     switch (tag[tag.length - 1]) {
       // specifier
       case 'c': // character
@@ -314,10 +314,10 @@ class StringLib {
 // string.find (s, pattern [, init [, plain]])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.find
   static int _strFind(LuaState ls) {
-    var s = ls.checkString(1);
+    var s = ls.checkString(1)!;
     var sLen = s.length;
     var pattern = ls.checkString(2);
-    var init = posRelat(ls.optInteger(3, 1), sLen);
+    var init = posRelat(ls.optInteger(3, 1)!, sLen);
     if (init < 1) {
       init = 1;
     } else if (init > sLen + 1) {
@@ -327,8 +327,8 @@ class StringLib {
     }
     var plain = ls.toBoolean(4);
 
-    var range = find(s, pattern, init, plain);
-    var start = range[0];
+    var range = find(s, pattern!, init, plain);
+    var start = range[0]!;
     var end = range[1];
 
     if (start < 0) {
@@ -340,7 +340,7 @@ class StringLib {
     return 2;
   }
 
-  static List<int> find(String s, String pattern, int init, bool plain) {
+  static List<int?> find(String s, String pattern, int init, bool plain) {
     var tail = s;
     if (init > 1) {
       tail = s.substring(init - 1);
@@ -359,7 +359,7 @@ class StringLib {
       end += s.length - tail.length + 1;
     }
 
-    return List<int>(2)
+    return List<int?>.filled(2,null)
       ..[0] = start
       ..[1] = end;
   }
@@ -367,10 +367,10 @@ class StringLib {
 // string.match (s, pattern [, init])
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.match
   static int _strMatch(LuaState ls) {
-    var s = ls.checkString(1);
+    var s = ls.checkString(1)!;
     var sLen = s.length;
     var pattern = ls.checkString(2);
-    var init = posRelat(ls.optInteger(3, 1), sLen);
+    var init = posRelat(ls.optInteger(3, 1)!, sLen);
     if (init < 1) {
       init = 1;
     } else if (init > sLen + 1) {
@@ -379,7 +379,7 @@ class StringLib {
       return 1;
     }
 
-    var captures = match(s, pattern, init);
+    var captures = match(s, pattern!, init);
 
     if (captures == null || captures.isEmpty) {
       ls.pushNil();
@@ -392,13 +392,13 @@ class StringLib {
     }
   }
 
-  static List<String> match(String s, String pattern, int init) {
+  static List<String?>? match(String? s, String pattern, int init) {
     var tail = s;
     if (init > 1) {
-      tail = s.substring(init - 1);
+      tail = s!.substring(init - 1);
     }
 
-    var regExpMatch = RegExp(pattern).firstMatch(tail);
+    var regExpMatch = RegExp(pattern).firstMatch(tail!);
     if (regExpMatch == null) return null;
     return [regExpMatch.group(0)];
   }
@@ -407,9 +407,9 @@ class StringLib {
 // http://www.lua.org/manual/5.3/manual.html#pdf-string.gsub
   static int _strGsub(LuaState ls) {
     var s = ls.checkString(1);
-    var pattern = ls.checkString(2);
+    var pattern = ls.checkString(2)!;
     var repl = ls.checkString(3); // todo
-    var n = ls.optInteger(4, -1);
+    var n = ls.optInteger(4, -1)!;
 
     var r = gsub(s, pattern, repl, n);
     var newStr = r[0];
@@ -419,31 +419,31 @@ class StringLib {
     return 2;
   }
 
-  static List<dynamic> gsub(String s, String pattern, String repl, int n) {
+  static List<dynamic> gsub(String? s, String pattern, String? repl, int n) {
     final regExp = RegExp(pattern);
-    RegExpMatch regMatch;
+    RegExpMatch? regMatch;
 
     List<Match> indexes = [];
     for (var i = 0; i < n; i++) {
-      regMatch = regExp.firstMatch(s);
+      regMatch = regExp.firstMatch(s!);
       if (regMatch == null) break;
       indexes.add(regMatch);
       s = s.substring(regMatch.end + 1);
     }
 
     if (indexes.isEmpty) {
-      return List(2)
+      return List.filled(2,null)
         ..[0] = s
         ..[1] = 0;
     }
 
     var nMatches = indexes.length;
     var lastEnd = indexes[nMatches - 1].end;
-    var head = s.substring(0, lastEnd);
+    var head = s!.substring(0, lastEnd);
     var tail = s.substring(lastEnd);
 
-    var newHead = head.replaceAll(regExp, repl);
-    return List(2)
+    var newHead = head.replaceAll(regExp, repl!);
+    return List.filled(2,null)
       ..[0] = '$newHead$tail'
       ..[1] = nMatches;
   }
@@ -455,23 +455,23 @@ class StringLib {
     var pattern = ls.checkString(2);
 
     Function gmatchAux = (LuaState ls) {
-      var captures = match(s, pattern, 1);
+      var captures = match(s, pattern!, 1);
       if (captures != null) {
-        String last;
+        String? last;
         for (var i = 0; i < captures.length; i++) {
           ls.pushString(captures[i]);
           if (i == captures.length - 1) {
             last = captures[i];
           }
         }
-        s = s.substring(s.lastIndexOf(last) + last.length + 1);
+        s = s!.substring(s!.lastIndexOf(last!) + last.length + 1);
         return captures.length;
       } else {
         return 0;
       }
     };
 
-    ls.pushDartFunction(gmatchAux);
+    ls.pushDartFunction(gmatchAux as int Function(LuaState));
     return 1;
   }
 

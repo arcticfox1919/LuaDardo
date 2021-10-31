@@ -20,7 +20,7 @@ const lua_igmark = "-";
 class PackageLib {
   static final lua_dirsep = Platform.pathSeparator;
 
-  static const Map<String, DartFunction> _pkgFuncs = {
+  static const Map<String, DartFunction?> _pkgFuncs = {
     "searchpath": _pkgSearchPath,
     /* placeholders */
     "preload": null,
@@ -73,7 +73,7 @@ class PackageLib {
 
     if (ls.getField(-1, name) == LuaType.luaNil) {
       /* not found? */
-      ls.pushString("\n\tno field package.preload['" + name + "']");
+      ls.pushString("\n\tno field package.preload['" + name! + "']");
     }
     return 1;
   }
@@ -103,13 +103,13 @@ class PackageLib {
   }
 
   static String _searchPath(
-      String name, String path, String sep, String dirSep) {
+      String? name, String path, String? sep, String? dirSep) {
     if (sep != "") {
-      name = name.replaceAll(sep, dirSep);
+      name = name!.replaceAll(sep!, dirSep!);
     }
 
     for (var filename in path.split(lua_path_sep)) {
-      filename = filename.replaceAll(lua_path_mark, name);
+      filename = filename.replaceAll(lua_path_mark, name!);
       if (FileSystemEntity.isDirectorySync(filename)) {
         if (Directory(filename).existsSync()) {
           return filename;
@@ -124,6 +124,7 @@ class PackageLib {
         }
       }
     }
+    return '';
   }
 
   // package.searchpath (name, path [, sep [, rep]])
@@ -131,7 +132,7 @@ class PackageLib {
   // loadlib.c#ll_searchpath
   static int _pkgSearchPath(LuaState ls) {
     var name = ls.checkString(1);
-    var path = ls.checkString(2);
+    var path = ls.checkString(2)!;
     var sep = ls.optString(3, ".");
     var rep = ls.optString(4, lua_dirsep);
 
@@ -178,7 +179,7 @@ class PackageLib {
     return 1;
   }
 
-  static void _findLoader(LuaState ls, String name) {
+  static void _findLoader(LuaState ls, String? name) {
     // push 'package.searchers' to index 3 in the stack
     if (ls.getField(Instructions.luaUpvalueIndex(1), "searchers") !=
         LuaType.luaTable) {
@@ -206,7 +207,7 @@ class PackageLib {
       } else if (ls.isString(-2)) {
         // searcher returned error message?
         ls.pop(1); // remove extra return
-        errMsg += ls.checkString(-1); // concatenate error message
+        errMsg += ls.checkString(-1)!; // concatenate error message
       } else {
         ls.pop(2); // remove both returns
       }

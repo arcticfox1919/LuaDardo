@@ -9,16 +9,20 @@ class UpvalInfo {
   int locVarSlot;
   int upvalIndex;
   int index;
+
+  UpvalInfo(this.index,this.upvalIndex,this.locVarSlot);
 }
 
 class LocVarInfo {
-  LocVarInfo prev;
+  LocVarInfo? prev;
   String name;
   int scopeLv;
   int slot;
   int startPC;
   int endPC;
   bool captured = false;
+
+  LocVarInfo(this.prev,this.name,this.slot,this.scopeLv,this.startPC,this.endPC);
 }
 
 class FuncInfo {
@@ -38,36 +42,36 @@ class FuncInfo {
     TokenKind.TOKEN_OP_SHR: OpCodeKind.SHR,
   };
 
-  FuncInfo parent;
-  List<FuncInfo> subFuncs = List<FuncInfo>();
+  FuncInfo? parent;
+  List<FuncInfo> subFuncs = <FuncInfo>[];
   int usedRegs = 0;
   int maxRegs = 0;
   int scopeLv = 0;
-  List<LocVarInfo> locVars = List<LocVarInfo>();
-  Map<String, LocVarInfo> locNames = Map<String, LocVarInfo>();
-  Map<String, UpvalInfo> upvalues = Map<String, UpvalInfo>();
-  Map<Object, int> constants = Map<Object, int>();
-  List<List<int>> breaks = List<List<int>>();
-  List<int> insts = List<int>();
-  List<int> lineNums = List<int>();
-  int line;
-  int lastLine;
-  int numParams;
-  bool isVararg;
+  List<LocVarInfo> locVars = <LocVarInfo>[];
+  Map<String?, LocVarInfo?> locNames = Map<String?, LocVarInfo?>();
+  Map<String?, UpvalInfo> upvalues = Map<String?, UpvalInfo>();
+  Map<Object?, int> constants = Map<Object?, int>();
+  List<List<int>?> breaks = <List<int>?>[];
+  List<int> insts = <int>[];
+  List<int> lineNums = <int>[];
+  int? line;
+  int? lastLine;
+  int? numParams;
+  bool? isVararg;
 
-  FuncInfo(FuncInfo parent, FuncDefExp fd) {
+  FuncInfo(FuncInfo? parent, FuncDefExp fd) {
     this.parent = parent;
     line = fd.line;
     lastLine = fd.lastLine;
-    numParams = fd.parList != null ? fd.parList.length : 0;
-    isVararg = fd.IsVararg;
+    numParams = fd.parList.length;
+    isVararg = fd.isVararg;
     breaks.add(null);
   }
 
 /* constants */
 
-  int indexOfConstant(Object k) {
-    int idx = constants[k];
+  int indexOfConstant(Object? k) {
+    int? idx = constants[k];
     if (idx != null) {
       return idx;
     }
@@ -121,14 +125,14 @@ class FuncInfo {
   void enterScope(bool breakable) {
     scopeLv++;
     if (breakable) {
-      breaks.add(List<int>());
+      breaks.add(<int>[]);
     } else {
       breaks.add(null);
     }
   }
 
   void exitScope(int endPC) {
-    List<int> pendingBreakJmps = breaks.removeAt(breaks.length - 1);
+    List<int>? pendingBreakJmps = breaks.removeAt(breaks.length - 1);
 
     if (pendingBreakJmps != null) {
       int a = getJmpArgA();
@@ -142,9 +146,9 @@ class FuncInfo {
     }
     
     scopeLv--;
-    var tmp = Map.from(locNames);
-    for (LocVarInfo locVar in tmp.values) {
-      if (locVar.scopeLv > scopeLv) {
+    Map<String?, LocVarInfo?> tmp = Map.from(locNames);
+    for (LocVarInfo? locVar in tmp.values) {
+      if (locVar!.scopeLv> scopeLv) {
         // out of scope
         locVar.endPC = endPC;
         removeLocVar(locVar);
@@ -156,21 +160,21 @@ class FuncInfo {
     freeReg();
     if (locVar.prev == null) {
       locNames.remove(locVar.name);
-    } else if (locVar.prev.scopeLv == locVar.scopeLv) {
-      removeLocVar(locVar.prev);
+    } else if (locVar.prev!.scopeLv == locVar.scopeLv) {
+      removeLocVar(locVar.prev!);
     } else {
       locNames[locVar.name] = locVar.prev;
     }
   }
 
   int addLocVar(String name, int startPC) {
-    LocVarInfo newVar = LocVarInfo();
-    newVar.name = name;
-    newVar.prev = locNames[name];
-    newVar.scopeLv = scopeLv;
-    newVar.slot = allocReg();
-    newVar.startPC = startPC;
-    newVar.endPC = 0;
+    LocVarInfo newVar = LocVarInfo(locNames[name],name,allocReg(),scopeLv,startPC,0);
+    // newVar.name = name;
+    // newVar.prev = locNames[name];
+    // newVar.scopeLv = scopeLv;
+    // newVar.slot = allocReg();
+    // newVar.startPC = startPC;
+    // newVar.endPC = 0;
 
     locVars.add(newVar);
     locNames[name] = newVar;
@@ -178,15 +182,15 @@ class FuncInfo {
     return newVar.slot;
   }
 
-  int slotOfLocVar(String name) {
-    return locNames.containsKey(name) ? locNames[name].slot : -1;
+  int? slotOfLocVar(String? name) {
+    return locNames.containsKey(name) ? locNames[name]!.slot : -1;
   }
 
   void addBreakJmp(int pc) {
     for (int i = scopeLv; i >= 0; i--) {
       if (breaks[i] != null) {
         // breakable
-        breaks[i].add(pc);
+        breaks[i]!.add(pc);
         return;
       }
     }
@@ -196,29 +200,29 @@ class FuncInfo {
 
 /* upvalues */
 
-  int indexOfUpval(String name) {
+  int indexOfUpval(String? name) {
     if (upvalues.containsKey(name)) {
-      return upvalues[name].index;
+      return upvalues[name]!.index;
     }
     if (parent != null) {
-      if (parent.locNames.containsKey(name)) {
-        LocVarInfo locVar = parent.locNames[name];
+      if (parent!.locNames.containsKey(name)) {
+        LocVarInfo locVar = parent!.locNames[name]!;
         int idx = upvalues.length;
-        UpvalInfo upval = UpvalInfo();
-        upval.locVarSlot = locVar.slot;
-        upval.upvalIndex = -1;
-        upval.index = idx;
+        UpvalInfo upval = UpvalInfo(idx,-1,locVar.slot);
+        // upval.locVarSlot = locVar.slot;
+        // upval.upvalIndex = -1;
+        // upval.index = idx;
         upvalues[name] = upval;
         locVar.captured = true;
         return idx;
       }
-      int uvIdx = parent.indexOfUpval(name);
+      int uvIdx = parent!.indexOfUpval(name);
       if (uvIdx >= 0) {
         int idx = upvalues.length;
-        UpvalInfo upval = UpvalInfo();
-        upval.locVarSlot = -1;
-        upval.upvalIndex = uvIdx;
-        upval.index = idx;
+        UpvalInfo upval = UpvalInfo(idx,uvIdx,-1);
+        // upval.locVarSlot = -1;
+        // upval.upvalIndex = uvIdx;
+        // upval.index = idx;
         upvalues[name] = upval;
         return idx;
       }
@@ -235,23 +239,23 @@ class FuncInfo {
 
   int getJmpArgA() {
     bool hasCapturedLocVars = false;
-    int minSlotOfLocVars = maxRegs;
-    for (LocVarInfo locVar in locNames.values) {
-      if (locVar.scopeLv == scopeLv) {
-        for (LocVarInfo v = locVar;
+    int? minSlotOfLocVars = maxRegs;
+    for (LocVarInfo? locVar in locNames.values) {
+      if (locVar!.scopeLv == scopeLv) {
+        for (LocVarInfo? v = locVar;
             v != null && v.scopeLv == scopeLv;
             v = v.prev) {
           if (v.captured) {
             hasCapturedLocVars = true;
           }
-          if (v.slot < minSlotOfLocVars && v.name[0] != '(') {
+          if (v.slot< minSlotOfLocVars! && v.name[0] != '(') {
             minSlotOfLocVars = v.slot;
           }
         }
       }
     }
     if (hasCapturedLocVars) {
-      return minSlotOfLocVars + 1;
+      return minSlotOfLocVars! + 1;
     } else {
       return 0;
     }
@@ -275,7 +279,7 @@ class FuncInfo {
     for (int i = locVars.length - 1; i >= 0; i--) {
       LocVarInfo locVar = locVars[i];
       if (locVar.name != name) {
-        locVar.endPC += delta;
+        locVar.endPC = delta + locVar.endPC;
         return;
       }
     }
@@ -322,12 +326,12 @@ class FuncInfo {
   }
 
 // r[a] = kst[bx]
-  void emitLoadK(int line, int a, Object k) {
+  void emitLoadK(int line, int? a, Object? k) {
     int idx = indexOfConstant(k);
     if (idx < (1 << 18)) {
-      emitABx(line, OpCodeKind.LOADK, a, idx);
+      emitABx(line, OpCodeKind.LOADK, a!, idx);
     } else {
-      emitABx(line, OpCodeKind.LOADKX, a, 0);
+      emitABx(line, OpCodeKind.LOADKX, a!, 0);
       emitAx(line, OpCodeKind.EXTRAARG, idx);
     }
   }
@@ -437,51 +441,53 @@ class FuncInfo {
   }
 
 // r[a] = op r[b]
-  void emitUnaryOp(int line, TokenKind op, int a, int b) {
+  void emitUnaryOp(int line, TokenKind op, int? a, int? b) {
     switch (op) {
       case TokenKind.TOKEN_OP_NOT:
-        emitABC(line, OpCodeKind.NOT, a, b, 0);
+        emitABC(line, OpCodeKind.NOT, a!, b!, 0);
         break;
       case TokenKind.TOKEN_OP_BNOT:
-        emitABC(line, OpCodeKind.BNOT, a, b, 0);
+        emitABC(line, OpCodeKind.BNOT, a!, b!, 0);
         break;
       case TokenKind.TOKEN_OP_LEN:
-        emitABC(line, OpCodeKind.LEN, a, b, 0);
+        emitABC(line, OpCodeKind.LEN, a!, b!, 0);
         break;
       case TokenKind.TOKEN_OP_UNM:
-        emitABC(line, OpCodeKind.UNM, a, b, 0);
+        emitABC(line, OpCodeKind.UNM, a!, b!, 0);
         break;
+      default:
     }
   }
 
 // r[a] = rk[b] op rk[c]
 // arith & bitwise & relational
-  void emitBinaryOp(int line, TokenKind op, int a, int b, int c) {
+  void emitBinaryOp(int line, TokenKind op, int? a, int? b, int? c) {
     if (arithAndBitwiseBinops.containsKey(op)) {
-      emitABC(line, arithAndBitwiseBinops[op], a, b, c);
+      emitABC(line, arithAndBitwiseBinops[op]!, a!, b!, c!);
     } else {
       switch (op) {
         case TokenKind.TOKEN_OP_EQ:
-          emitABC(line, OpCodeKind.EQ, 1, b, c);
+          emitABC(line, OpCodeKind.EQ, 1, b!, c!);
           break;
         case TokenKind.TOKEN_OP_NE:
-          emitABC(line, OpCodeKind.EQ, 0, b, c);
+          emitABC(line, OpCodeKind.EQ, 0, b!, c!);
           break;
         case TokenKind.TOKEN_OP_LT:
-          emitABC(line, OpCodeKind.LT, 1, b, c);
+          emitABC(line, OpCodeKind.LT, 1, b!, c!);
           break;
         case TokenKind.TOKEN_OP_GT:
-          emitABC(line, OpCodeKind.LT, 1, c, b);
+          emitABC(line, OpCodeKind.LT, 1, c!, b!);
           break;
         case TokenKind.TOKEN_OP_LE:
-          emitABC(line, OpCodeKind.LE, 1, b, c);
+          emitABC(line, OpCodeKind.LE, 1, b!, c!);
           break;
         case TokenKind.TOKEN_OP_GE:
-          emitABC(line, OpCodeKind.LE, 1, c, b);
+          emitABC(line, OpCodeKind.LE, 1, c!, b!);
           break;
+        default:
       }
       emitJmp(line, 0, 1);
-      emitLoadBool(line, a, 0, 1);
+      emitLoadBool(line, a!, 0, 1);
       emitLoadBool(line, a, 1, 0);
     }
   }

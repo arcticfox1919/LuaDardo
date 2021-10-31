@@ -8,10 +8,12 @@ import 'funcinfo.dart';
 class CodeGen {
 
   static Prototype genProto(Block chunk) {
-    FuncDefExp fd = FuncDefExp();
+    FuncDefExp fd = FuncDefExp(
+      isVararg: true,
+      block: chunk,
+      parList: List.empty()
+    );
     fd.lastLine = chunk.lastLine;
-    fd.IsVararg = true;
-    fd.block = chunk;
 
     FuncInfo fi = FuncInfo(null, fd);
     fi.addLocVar("_ENV", 0);

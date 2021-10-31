@@ -73,7 +73,7 @@ class StatProcessor {
     int pcBeforeExp = fi.pc();
 
     int oldRegs = fi.usedRegs;
-    int a = ExpProcessor.expToOpArg(fi, node.exp, ExpProcessor.ARG_REG).arg;
+    int a = ExpProcessor.expToOpArg(fi, node.exp, ExpProcessor.ARG_REG).arg!;
     fi.usedRegs = oldRegs;
 
     int line = ExpHelper.lastLineOf(node.exp);
@@ -102,7 +102,7 @@ class StatProcessor {
     BlockProcessor.processBlock(fi, node.block);
 
     int oldRegs = fi.usedRegs;
-    int a = ExpProcessor.expToOpArg(fi, node.exp, ExpProcessor.ARG_REG).arg;
+    int a = ExpProcessor.expToOpArg(fi, node.exp, ExpProcessor.ARG_REG).arg!;
     fi.usedRegs = oldRegs;
 
     int line = ExpHelper.lastLineOf(node.exp);
@@ -123,7 +123,7 @@ class StatProcessor {
                         jmp                     jmp                     jmp
     */
   static void processIfStat(FuncInfo fi, IfStat node) {
-    var pcJmpToEnds = List<int>(node.exps.length);
+    var pcJmpToEnds = List<int?>.filled(node.exps.length,null);
     int pcJmpToNextExp = -1;
 
     for (int i = 0; i < node.exps.length; i++) {
@@ -133,7 +133,7 @@ class StatProcessor {
       }
 
       int oldRegs = fi.usedRegs;
-      int a = ExpProcessor.expToOpArg(fi, exp, ExpProcessor.ARG_REG).arg;
+      int a = ExpProcessor.expToOpArg(fi, exp, ExpProcessor.ARG_REG).arg!;
       fi.usedRegs = oldRegs;
 
       int line = ExpHelper.lastLineOf(exp);
@@ -152,8 +152,8 @@ class StatProcessor {
       }
     }
 
-    for (int pc in pcJmpToEnds) {
-      fi.fixSbx(pc, fi.pc()-pc);
+    for (int? pc in pcJmpToEnds) {
+      fi.fixSbx(pc!, fi.pc()-pc);
     }
   }
 
@@ -166,7 +166,7 @@ class StatProcessor {
 
     LocalVarDeclStat lvdStat = LocalVarDeclStat(0,
         [forIndexVar, forLimitVar, forStepVar],
-        [node.InitExp, node.LimitExp, node.StepExp]);
+        [node.initExp, node.limitExp, node.stepExp]);
     processLocalVarDeclStat(fi, lvdStat);
     fi.addLocVar(node.varName, fi.pc()+2);
 
@@ -192,24 +192,22 @@ class StatProcessor {
 
     fi.enterScope(true);
 
-    LocalVarDeclStat lvdStat = LocalVarDeclStat(0,
-        [forGeneratorVar, forStateVar, forControlVar],
-        node.expList
-    );
+    LocalVarDeclStat lvdStat = LocalVarDeclStat(
+        0, [forGeneratorVar, forStateVar, forControlVar], node.expList);
     processLocalVarDeclStat(fi, lvdStat);
     for (String name in node.nameList) {
-    fi.addLocVar(name, fi.pc()+2);
+      fi.addLocVar(name, fi.pc() + 2);
     }
 
     int pcJmpToTFC = fi.emitJmp(node.lineOfDo, 0, 0);
     BlockProcessor.processBlock(fi, node.block);
     fi.closeOpenUpvals(node.block.lastLine);
-    fi.fixSbx(pcJmpToTFC, fi.pc()-pcJmpToTFC);
+    fi.fixSbx(pcJmpToTFC, fi.pc() - pcJmpToTFC);
 
     int line = ExpHelper.lineOf(node.expList[0]);
-    int rGenerator = fi.slotOfLocVar(forGeneratorVar);
+    int rGenerator = fi.slotOfLocVar(forGeneratorVar)!;
     fi.emitTForCall(line, rGenerator, node.nameList.length);
-    fi.emitTForLoop(line, rGenerator+2, pcJmpToTFC-fi.pc()-1);
+    fi.emitTForLoop(line, rGenerator + 2, pcJmpToTFC - fi.pc() - 1);
 
     fi.exitScope(fi.pc() - 1);
     fi.fixEndPC(forGeneratorVar, 2);
@@ -218,19 +216,19 @@ class StatProcessor {
   }
 
   static void processLocalVarDeclStat(FuncInfo fi, LocalVarDeclStat node) {
-    List<Exp> exps = ExpHelper.removeTailNils(node.expList);
+    List<Exp?> exps = ExpHelper.removeTailNils(node.expList);
     int nExps = exps.length;
     int nNames = node.nameList.length;
 
     int oldRegs = fi.usedRegs;
     if (nExps == nNames) {
-      for(Exp exp in exps) {
+      for(Exp? exp in exps) {
         int a = fi.allocReg();
         ExpProcessor.processExp(fi, exp, a, 1);
       }
     } else if (nExps > nNames) {
       for (int i = 0; i < exps.length; i++) {
-        Exp exp = exps[i];
+        Exp? exp = exps[i];
         int a = fi.allocReg();
         if (i == nExps-1 && ExpHelper.isVarargOrFuncCall(exp)) {
           ExpProcessor.processExp(fi, exp, a, 0);
@@ -241,7 +239,7 @@ class StatProcessor {
     } else { // nNames > nExps
       bool multRet = false;
       for (int i = 0; i < exps.length; i++) {
-        Exp exp = exps[i];
+        Exp? exp = exps[i];
         int a = fi.allocReg();
         if (i == nExps-1 && ExpHelper.isVarargOrFuncCall(exp)) {
           multRet = true;
@@ -267,17 +265,17 @@ class StatProcessor {
   }
 
   static void processAssignStat(FuncInfo fi, AssignStat node) {
-    List<Exp> exps = ExpHelper.removeTailNils(node.expList);
+    List<Exp?> exps = ExpHelper.removeTailNils(node.expList);
     int nExps = exps.length;
     int nVars = node.varList.length;
 
-    var tRegs = List<int>(nVars);
-    var kRegs = List<int>(nVars);
-    var vRegs = List<int>(nVars);
+    var tRegs = List<int>.filled(nVars,0);
+    var kRegs = List<int>.filled(nVars,0);
+    var vRegs = List<int>.filled(nVars,0);
     int oldRegs = fi.usedRegs;
 
     for (int i = 0; i < node.varList.length; i++) {
-      Exp exp = node.varList[i];
+      Exp? exp = node.varList[i];
       if (exp is TableAccessExp) {
         TableAccessExp taExp = exp;
         tRegs[i] = fi.allocReg();
@@ -285,8 +283,8 @@ class StatProcessor {
         kRegs[i] = fi.allocReg();
         ExpProcessor.processExp(fi, taExp.keyExp, kRegs[i], 1);
       } else {
-        String name = (exp as NameExp).name;
-        if (fi.slotOfLocVar(name) < 0 && fi.indexOfUpval(name) < 0) {
+        String? name = (exp as NameExp).name;
+        if (fi.slotOfLocVar(name)! < 0 && fi.indexOfUpval(name)< 0) {
           // global var
           kRegs[i] = -1;
           if (fi.indexOfConstant(name) > 0xFF) {
@@ -301,7 +299,7 @@ class StatProcessor {
 
     if (nExps >= nVars) {
       for (int i = 0; i < exps.length; i++) {
-        Exp exp = exps[i];
+        Exp? exp = exps[i];
         int a = fi.allocReg();
         if (i >= nVars && i == nExps-1 && ExpHelper.isVarargOrFuncCall(exp)) {
           ExpProcessor.processExp(fi, exp, a, 0);
@@ -312,7 +310,7 @@ class StatProcessor {
     } else { // nVars > nExps
       bool multRet = false;
       for (int i = 0; i < exps.length; i++) {
-        Exp exp = exps[i];
+        Exp? exp = exps[i];
         int a = fi.allocReg();
         if (i == nExps-1 && ExpHelper.isVarargOrFuncCall(exp)) {
           multRet = true;
@@ -332,15 +330,15 @@ class StatProcessor {
 
     int lastLine = node.lastLine;
     for (int i = 0; i < node.varList.length; i++) {
-      Exp exp = node.varList[i];
+      Exp? exp = node.varList[i];
       if (! (exp is NameExp)) {
         fi.emitSetTable(lastLine, tRegs[i], kRegs[i], vRegs[i]);
         continue;
       }
 
-      NameExp nameExp = exp as NameExp;
-      String varName = nameExp.name;
-      int a = fi.slotOfLocVar(varName);
+      NameExp nameExp = exp;
+      String? varName = nameExp.name;
+      int a = fi.slotOfLocVar(varName)!;
       if (a >= 0) {
         fi.emitMove(lastLine, a, vRegs[i]);
         continue;
@@ -352,9 +350,9 @@ class StatProcessor {
         continue;
       }
 
-      a = fi.slotOfLocVar("_ENV");
+      a = fi.slotOfLocVar("_ENV")!;
       if (a >= 0) {
-        if (kRegs[i] < 0) {
+        if (kRegs[i]< 0) {
           b = 0x100 + fi.indexOfConstant(varName);
           fi.emitSetTable(lastLine, a, b, vRegs[i]);
         } else {
@@ -365,7 +363,7 @@ class StatProcessor {
 
       // global var
       a = fi.indexOfUpval("_ENV");
-      if (kRegs[i] < 0) {
+      if (kRegs[i]< 0) {
         b = 0x100 + fi.indexOfConstant(varName);
         fi.emitSetTabUp(lastLine, a, b, vRegs[i]);
       } else {

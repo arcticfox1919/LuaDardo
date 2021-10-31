@@ -4,7 +4,7 @@ import '../../lua.dart';
 
 class MathLib{
 
-  static const Map<String, DartFunction> _mathLib = {
+  static const Map<String, DartFunction?> _mathLib = {
     "random":     _random,
     "randomseed": _randomseed,
     "max":        _max,
@@ -77,7 +77,7 @@ class MathLib{
   }
 
   static int _randomseed(LuaState ls) {
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     rng = new math.Random(x.floor());
     return 0;
   }
@@ -109,8 +109,8 @@ class MathLib{
   }
 
   static int _exp(LuaState ls){
-    var x = ls.checkNumber(1);
-    ls.pushNumber(math.pow(math.e, x));
+    var x = ls.checkNumber(1)!;
+    ls.pushNumber(math.pow(math.e, x) as double);
     return 1;
   }
 
@@ -119,16 +119,16 @@ class MathLib{
     var res;
 
     if(ls.isNoneOrNil(2)){
-      res = math.log(x);
+      res = math.log(x!);
     } else {
       var base = ls.toNumber(2);
       // if (base == 2){
       //   res = log2(x);
       // } else
       if (base == 10) {
-        res = math.log(x)/ln10;
+        res = math.log(x!)/ln10;
       } else {
-        res = math.log(x)/math.log(base);
+        res = math.log(x!)/math.log(base);
       }
     }
 
@@ -137,50 +137,50 @@ class MathLib{
   }
 
   static int _deg(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(x/rpd);
     return 1;
   }
 
   static int _rad(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(x*rpd);
     return 1;
   }
 
   static int _sin(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(math.sin(x));
     return 1;
   }
 
   static int _cos(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(math.cos(x));
     return 1;
   }
 
   static int _tan(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(math.tan(x));
     return 1;
   }
 
   static int _asin(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(math.asin(x));
     return 1;
   }
 
   static int _acos(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(math.acos(x));
     return 1;
   }
 
   static int _atan(LuaState ls){
-    var y = ls.checkNumber(1);
-    var x = ls.optNumber(2, 1.0);
+    var y = ls.checkNumber(1)!;
+    var x = ls.optNumber(2, 1.0)!;
     ls.pushNumber(math.atan2(y, x));
     return 1;
   }
@@ -198,7 +198,7 @@ class MathLib{
     if(ls.isInteger(1)){
       ls.setTop(1); /* integer is its own ceil */
     } else {
-      double x = ls.checkNumber(1);
+      double x = ls.checkNumber(1)!;
       ls.pushInteger(x.ceil());
     }
     return 1;
@@ -208,7 +208,7 @@ class MathLib{
     if(ls.isInteger(1)){
       ls.setTop(1); /* integer is its own floor */
     } else {
-      double x = ls.checkNumber(1);
+      double x = ls.checkNumber(1)!;
       ls.pushInteger(x.floor());
     }
     return 1;
@@ -225,8 +225,8 @@ class MathLib{
         ls.pushInteger(ls.toInteger(1) % d);
       }
     } else {
-      var x = ls.checkNumber(1);
-      var y = ls.checkNumber(2);
+      var x = ls.checkNumber(1)!;
+      var y = ls.checkNumber(2)!;
       ls.pushNumber((x % y) * x.sign);
     }
     return 1;
@@ -237,7 +237,7 @@ class MathLib{
       ls.setTop(1);     /* number is its own integer part */
       ls.pushNumber(0); /* no fractional part */
     } else {
-      var x = ls.checkNumber(1);
+      var x = ls.checkNumber(1)!;
       var o = x.floor();
       ls.pushInteger(o);
       ls.pushNumber(x-o);
@@ -252,21 +252,21 @@ class MathLib{
         ls.pushInteger(-x);
       }
     } else {
-      var x = ls.checkNumber(1);
+      var x = ls.checkNumber(1)!;
       ls.pushNumber(x.abs());
     }
     return 1;
   }
 
   static int _sqrt(LuaState ls){
-    var x = ls.checkNumber(1);
+    var x = ls.checkNumber(1)!;
     ls.pushNumber(math.sqrt(x));
     return 1;
   }
 
   static int _ult(LuaState ls){
-    var m = ls.checkInteger(1);
-    var n = ls.checkInteger(2);
+    var m = ls.checkInteger(1)!;
+    var n = ls.checkInteger(2)!;
     ls.pushBoolean(m < n);
     return 1;
   }

@@ -10,7 +10,7 @@ bool testOS(){
 local start = os.clock()
 
 local s = 0
-for i = 1, 10000000 do
+for i = 1, 100000 do
       s = s + i;
 end
 

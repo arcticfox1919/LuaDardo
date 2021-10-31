@@ -4,7 +4,7 @@ import 'lua_value.dart';
 
 class Comparison {
 
-  static bool eq(Object a, Object b, LuaStateImpl ls) {
+  static bool eq(Object? a, Object? b, LuaStateImpl? ls) {
     if (a == null) {
       return b == null;
     } else if (a is bool || a is String) {
@@ -17,7 +17,7 @@ class Comparison {
           (b is int && a == b.toDouble());
     } else if (a is LuaTable) { // meta method
       if (b is LuaTable && a != b && ls != null) {
-        Object mm = ls.getMetamethod(a, b, "__eq");
+        Object? mm = ls.getMetamethod(a, b, "__eq");
         if (mm != null) {
           return LuaValue.toBoolean(ls.callMetamethod(a, b, mm));
         }
@@ -28,7 +28,7 @@ class Comparison {
     }
   }
 
-  static bool lt(Object a, Object b, LuaStateImpl ls) {
+  static bool lt(Object? a, Object? b, LuaStateImpl ls) {
     if (a is String && b is String) {
       return a.compareTo(b) < 0;
     }
@@ -47,7 +47,7 @@ class Comparison {
       }
     }
 
-    Object mm = ls.getMetamethod(a, b, "__lt");
+    Object? mm = ls.getMetamethod(a, b, "__lt");
     if (mm != null) {
       return LuaValue.toBoolean(ls.callMetamethod(a, b, mm));
     }
@@ -55,7 +55,7 @@ class Comparison {
     throw Exception("comparison error!");
   }
 
-  static bool le(Object a, Object b, LuaStateImpl ls) {
+  static bool le(Object? a, Object? b, LuaStateImpl ls) {
     if (a is String && b is String) {
       return a.compareTo(b) <= 0;
     }
@@ -74,7 +74,7 @@ class Comparison {
       }
     }
 
-    Object mm = ls.getMetamethod(a, b, "__le");
+    Object? mm = ls.getMetamethod(a, b, "__le");
     if (mm != null) {
       return LuaValue.toBoolean(ls.callMetamethod(a, b, mm));
     }
