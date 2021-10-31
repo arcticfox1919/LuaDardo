@@ -1,3 +1,6 @@
+## 0.0.4
+* Upgrade null safety
+
 ## 0.0.3
 * Fix the bug of the table constructor
 * Add auxiliary API for reference(`ref`/`unRef`)
