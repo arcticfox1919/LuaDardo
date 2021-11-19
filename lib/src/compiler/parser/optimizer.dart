@@ -42,6 +42,7 @@ class Optimizer {
             return IntegerExp(exp.line, LuaMath.shiftLeft(i, j));
           case TokenKind.TOKEN_OP_SHR:
             return IntegerExp(exp.line, LuaMath.shiftRight(i, j));
+          default:
         }
       }
     }
@@ -56,23 +57,24 @@ class Optimizer {
       IntegerExp y = exp.exp2 as IntegerExp;
       switch (exp.op) {
         case TokenKind.TOKEN_OP_ADD:
-          return IntegerExp(exp.line, x.val! + y.val!);
+          return IntegerExp(exp.line, x.val+ y.val);
         case TokenKind.TOKEN_OP_SUB:
-          return IntegerExp(exp.line, x.val! - y.val!);
+          return IntegerExp(exp.line, x.val- y.val);
         case TokenKind.TOKEN_OP_MUL:
-          return IntegerExp(exp.line, x.val! * y.val!);
+          return IntegerExp(exp.line, x.val* y.val);
         case TokenKind.TOKEN_OP_IDIV:
           if (y.val != 0) {
             return IntegerExp(
-                exp.line, (x.val!/y.val!).floor());
+                exp.line, (x.val/y.val).floor());
           }
           break;
         case TokenKind.TOKEN_OP_MOD:
           if (y.val != 0) {
             return IntegerExp(
-                exp.line, LuaMath.iFloorMod(x.val!, y.val!));
+                exp.line, LuaMath.iFloorMod(x.val, y.val));
           }
           break;
+        default:
       }
     }
 
@@ -89,6 +91,7 @@ class Optimizer {
             return FloatExp(exp.line, f * g);
           case TokenKind.TOKEN_OP_POW:
             return FloatExp(exp.line, math.pow(f, g) as double);
+          default:
         }
         if (g != 0) {
           switch (exp.op) {
@@ -98,6 +101,7 @@ class Optimizer {
               return FloatExp(exp.line, LuaMath.floorDiv(f, g));
             case TokenKind.TOKEN_OP_MOD:
               return FloatExp(exp.line, LuaMath.floorMod(f, g));
+            default:
           }
         }
       }
@@ -134,7 +138,7 @@ class Optimizer {
   static Exp optimizeUnm(UnopExp exp) {
     if (exp.exp is IntegerExp) {
       IntegerExp iExp = exp.exp as IntegerExp;
-      iExp.val = -iExp.val!;
+      iExp.val = -iExp.val;
       return iExp;
     }
     if (exp.exp is FloatExp) {
@@ -163,7 +167,7 @@ class Optimizer {
   static Exp optimizeBnot(UnopExp exp) {
     if (exp.exp is IntegerExp) {
       IntegerExp iExp = exp.exp as IntegerExp;
-      iExp.val = ~iExp.val!;
+      iExp.val = ~iExp.val;
       return iExp;
     }
     if (exp.exp is FloatExp) {
@@ -213,7 +217,7 @@ class Optimizer {
 
   static double? castToFloat(Exp exp) {
     if (exp is IntegerExp) {
-      return exp.val!.toDouble();
+      return exp.val.toDouble();
     }
     if (exp is FloatExp) {
       return exp.val;

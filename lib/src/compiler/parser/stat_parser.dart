@@ -298,7 +298,7 @@ class StatParser {
       if (fdExp.parList == null) {
         fdExp.parList = <String>[];
       }
-      fdExp.parList!.insert(0, "self");
+      fdExp.parList.insert(0, "self");
     }
 
     return AssignStat(fdExp.lastLine, <Exp>[fnExp], <Exp>[fdExp]);
