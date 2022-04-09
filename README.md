@@ -198,7 +198,7 @@ print('random value is '..rand_val)
 
 ## Try on Flutter
 
-![](https://gitee.com/arcticfox1919/ImageHosting/raw/master/img/GIF_2021-5-11_21-44-49.gif)
+![](https://picturehost.oss-cn-shenzhen.aliyuncs.com/img/GIF_2021-5-11_21-44-49.gif)
 
 ```lua
 function getContent1()
