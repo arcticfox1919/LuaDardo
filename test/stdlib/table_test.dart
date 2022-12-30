@@ -50,6 +50,7 @@ alphabet.c = 'gamma'
 
 result = false;
 for k, v in pairs(alphabet) do
+  print(k, v)
   if (k == 'c' and v == 'gamma')
   then
     result = true;
@@ -69,9 +70,9 @@ end
 }
 
 void main() {
-  //test('lua table standard library test', () {
-  //  expect(testTable(), true);
-  //});
+  test('lua table standard library test', () {
+    expect(testTable(), true);
+  });
   test('\nlua traversing table test', () {
     expect(testTableTraversing(), true);
   });
