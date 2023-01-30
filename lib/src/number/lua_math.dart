@@ -1,3 +1,5 @@
+import '../stdlib/constants.dart' if (dart.library.html) '../stdlib/constants_js.dart';
+
 class LuaMath {
 
   static double floorDiv(double a, double b) {
@@ -44,6 +46,6 @@ class LuaMath {
 extension  LogicalRightShift on  int{
 
   int logicalRShift(int size){
-    return (this >> size) & 0x0FFFFFFFFFFFFFFF;
+    return (this >> size) & rShiftMask;
   }
 }
