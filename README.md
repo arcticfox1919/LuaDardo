@@ -196,6 +196,37 @@ print('random value is '..rand_val)
 }
 ```
 
+Some people are curious about how to access Lua tables in Dart. Here is a simple example:
+
+```dart
+  state.loadString('''
+rand_val = randomInt(10,{ ["hello"] = "World", ["hello22"] = "World132414" })
+print('random value is '..rand_val)
+''');
+```
+
+```dart
+int randomInt(LuaState ls) {
+  int? max = ls.checkInteger(1);
+  ls.getField(2, "hello");
+  // This is a debugging method that looks at the stack
+  ls.printStack();
+  var hello = ls.toStr(-1);
+  print(hello);
+  ls.pop(1);
+
+  ls.getField(2, "hello22");
+  var hello22 = ls.toStr(-1);
+  print(hello22);
+  ls.pop(1);
+
+  var random = Random();
+  var randVal = random.nextInt(max!);
+  ls.pushInteger(randVal);
+  return 1;
+}
+```
+
 ## Try on Flutter
 
 ![](https://picturehost.oss-cn-shenzhen.aliyuncs.com/img/GIF_2021-5-11_21-44-49.gif)
