@@ -37,7 +37,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   LuaTable? registry = LuaTable(0, 0);
 
   LuaStateImpl() {
-    registry!.put(lua_ridx_globals, LuaTable(0, 0));
+    registry!.put(luaRidxGlobals, LuaTable(0, 0));
     LuaStack stack = LuaStack();
     stack.state = this;
     _pushLuaStack(stack);
@@ -346,9 +346,8 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   void arith(ArithOp op) {
     Object? b = _stack!.pop();
-    Object? a = op != ArithOp.lua_op_unm && op != ArithOp.lua_op_bnot
-        ? _stack!.pop()
-        : b;
+    Object? a =
+        op != ArithOp.luaOpUnm && op != ArithOp.luaOpBnot ? _stack!.pop() : b;
     Object? result = Arithmetic.arith(a, b, op, this);
     if (result != null) {
       _stack!.push(result);
@@ -366,11 +365,11 @@ class LuaStateImpl implements LuaState, LuaVM {
     Object? a = _stack!.get(idx1);
     Object? b = _stack!.get(idx2);
     switch (op) {
-      case CmpOp.lua_op_eq:
+      case CmpOp.luaOpEq:
         return Comparison.eq(a, b, this);
-      case CmpOp.lua_op_lt:
+      case CmpOp.luaOpLt:
         return Comparison.lt(a, b, this);
-      case CmpOp.lua_op_le:
+      case CmpOp.luaOpLe:
         return Comparison.le(a, b, this);
       default:
         throw Exception("invalid compare op!");
@@ -642,10 +641,10 @@ class LuaStateImpl implements LuaState, LuaVM {
     Closure closure = Closure(proto);
     _stack!.push(closure);
     if (proto.upvalues.length > 0) {
-      Object? env = registry!.get(lua_ridx_globals);
+      Object? env = registry!.get(luaRidxGlobals);
       closure.upvals[0] = UpvalueHolder.value(env); // todo
     }
-    return ThreadStatus.lua_ok;
+    return ThreadStatus.luaOk;
   }
 
   @override
@@ -667,13 +666,13 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   LuaType getGlobal(String name) {
-    Object? t = registry!.get(lua_ridx_globals);
+    Object? t = registry!.get(luaRidxGlobals);
     return _getTable(t, name, false);
   }
 
   @override
   void pushGlobalTable() {
-    _stack!.push(registry!.get(lua_ridx_globals));
+    _stack!.push(registry!.get(luaRidxGlobals));
   }
 
   @override
@@ -694,7 +693,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void setGlobal(String name) {
-    Object? t = registry!.get(lua_ridx_globals);
+    Object? t = registry!.get(luaRidxGlobals);
     Object? v = _stack!.pop();
     _setTable(t, name, v, false);
   }
@@ -804,7 +803,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     LuaStack? caller = _stack;
     try {
       call(nArgs, nResults);
-      return ThreadStatus.lua_ok;
+      return ThreadStatus.luaOk;
     } catch (e) {
       if (msgh != 0) {
         throw e;
@@ -813,7 +812,7 @@ class LuaStateImpl implements LuaState, LuaVM {
         _popLuaStack();
       }
       _stack!.push("$e"); // TODO
-      return ThreadStatus.lua_errrun;
+      return ThreadStatus.luaErrRun;
     }
   }
 
@@ -925,14 +924,14 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool doFile(String filename) {
-    return loadFile(filename) == ThreadStatus.lua_ok &&
-        pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
+    return loadFile(filename) == ThreadStatus.luaOk &&
+        pCall(0, luaMultret, 0) == ThreadStatus.luaOk;
   }
 
   @override
   bool doString(String str) {
-    return loadString(str) == ThreadStatus.lua_ok &&
-        pCall(0, lua_multret, 0) == ThreadStatus.lua_ok;
+    return loadString(str) == ThreadStatus.luaOk &&
+        pCall(0, luaMultret, 0) == ThreadStatus.luaOk;
   }
 
   @override
@@ -961,7 +960,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   LuaType getMetatableAux(String tname) {
-    return getField(lua_registryindex, tname);
+    return getField(luaRegistryIndex, tname);
   }
 
   @override
@@ -1001,7 +1000,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     } catch (e, s) {
       print(e);
       print(s);
-      return ThreadStatus.lua_errfile;
+      return ThreadStatus.luaErrFile;
     }
   }
 
@@ -1061,7 +1060,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void requireF(String modname, openf, bool glb) {
-    getSubTable(lua_registryindex, "_LOADED");
+    getSubTable(luaRegistryIndex, "_LOADED");
     getField(-1, modname); /* LOADED[modname] */
     if (!toBoolean(-1)) {
       /* package not already loaded? */
@@ -1178,7 +1177,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     pushString(tname);
     setField(-2, "__name"); /* metatable.__name = tname */
     pushValue(-1);
-    setField(lua_registryindex, tname); /* registry.name = metatable */
+    setField(luaRegistryIndex, tname); /* registry.name = metatable */
     return true;
   }
 

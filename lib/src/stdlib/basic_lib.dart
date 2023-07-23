@@ -189,7 +189,7 @@ class BasicLib {
 
 // lua-5.3.4/src/lbaselib.c#load_aux()
   static int loadAux(LuaState ls, ThreadStatus status, int envIdx) {
-    if (status == ThreadStatus.lua_ok) {
+    if (status == ThreadStatus.luaOk) {
       if (envIdx != 0) {
         /* 'env' parameter? */
         throw Exception("todo!");
@@ -220,10 +220,10 @@ class BasicLib {
   static int _baseDoFile(LuaState ls) {
     String? fname = ls.optString(1, "bt");
     ls.setTop(1);
-    if (ls.loadFile(fname) != ThreadStatus.lua_ok) {
+    if (ls.loadFile(fname) != ThreadStatus.luaOk) {
       return ls.error();
     }
-    ls.call(0, lua_multret);
+    ls.call(0, luaMultret);
     return ls.getTop() - 1;
   }
 
@@ -232,7 +232,7 @@ class BasicLib {
   static int _basePCall(LuaState ls) {
     int nArgs = ls.getTop() - 1;
     ThreadStatus status = ls.pCall(nArgs, -1, 0);
-    ls.pushBoolean(status == ThreadStatus.lua_ok);
+    ls.pushBoolean(status == ThreadStatus.luaOk);
     ls.insert(1);
     return ls.getTop();
   }

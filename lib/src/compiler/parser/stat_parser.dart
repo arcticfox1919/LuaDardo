@@ -295,9 +295,6 @@ class StatParser {
     bool hasColon = map.values.first;
     FuncDefExp fdExp = ExpParser.parseFuncDefExp(lexer);    // funcbody
     if (hasColon) { // insert self
-      if (fdExp.parList == null) {
-        fdExp.parList = <String>[];
-      }
       fdExp.parList.insert(0, "self");
     }
 

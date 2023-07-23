@@ -5,7 +5,6 @@ import 'fpb.dart';
 import 'instruction.dart';
 
 class Instructions {
-
   /// number of list items to accumulate before a SETLIST instruction
   static final int lfields_per_flush = 50;
 
@@ -72,59 +71,59 @@ class Instructions {
   /* arith */
 
   static void add(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_add);
+    binaryArith(i, vm, ArithOp.luaOpAdd);
   } // +
 
   static void sub(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_sub);
+    binaryArith(i, vm, ArithOp.luaOpSub);
   } // -
 
   static void mul(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_mul);
+    binaryArith(i, vm, ArithOp.luaOpMul);
   } // *
 
   static void mod(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_mod);
+    binaryArith(i, vm, ArithOp.luaOpMod);
   } // %
 
   static void pow(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_pow);
+    binaryArith(i, vm, ArithOp.luaOpPow);
   } // ^
 
   static void div(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_div);
+    binaryArith(i, vm, ArithOp.luaOpDiv);
   } // /
 
   static void idiv(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_idiv);
+    binaryArith(i, vm, ArithOp.luaOpIdiv);
   } // //
 
   static void band(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_band);
+    binaryArith(i, vm, ArithOp.luaOpBand);
   } // &
 
   static void bor(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_bor);
+    binaryArith(i, vm, ArithOp.luaOpBor);
   } // |
 
   static void bxor(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_bxor);
+    binaryArith(i, vm, ArithOp.luaOpBxor);
   } // ~
 
   static void shl(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_shl);
+    binaryArith(i, vm, ArithOp.luaOpShl);
   } // <<
 
   static void shr(int i, LuaVM vm) {
-    binaryArith(i, vm, ArithOp.lua_op_shr);
+    binaryArith(i, vm, ArithOp.luaOpShr);
   } // >>
 
   static void unm(int i, LuaVM vm) {
-    unaryArith(i, vm, ArithOp.lua_op_unm);
+    unaryArith(i, vm, ArithOp.luaOpUnm);
   } // -
 
   static void bnot(int i, LuaVM vm) {
-    unaryArith(i, vm, ArithOp.lua_op_bnot);
+    unaryArith(i, vm, ArithOp.luaOpBnot);
   } // ~
 
   // R(A) := RK(B) op RK(C)
@@ -150,15 +149,15 @@ class Instructions {
   /* compare */
 
   static void eq(int i, LuaVM vm) {
-    compare(i, vm, CmpOp.lua_op_eq);
+    compare(i, vm, CmpOp.luaOpEq);
   } // ==
 
   static void lt(int i, LuaVM vm) {
-    compare(i, vm, CmpOp.lua_op_lt);
+    compare(i, vm, CmpOp.luaOpLt);
   } // <
 
   static void le(int i, LuaVM vm) {
-    compare(i, vm, CmpOp.lua_op_le);
+    compare(i, vm, CmpOp.luaOpLe);
   } // <=
 
   // if ((RK(B) op RK(C)) ~= A) then pc++
@@ -251,7 +250,7 @@ class Instructions {
 
     vm.pushValue(a);
     vm.pushValue(a + 2);
-    vm.arith(ArithOp.lua_op_sub);
+    vm.arith(ArithOp.luaOpSub);
     vm.replace(a);
     vm.addPC(sBx);
   }
@@ -267,12 +266,12 @@ class Instructions {
     // R(A)+=R(A+2);
     vm.pushValue(a + 2);
     vm.pushValue(a);
-    vm.arith(ArithOp.lua_op_add);
+    vm.arith(ArithOp.luaOpAdd);
     vm.replace(a);
 
     bool isPositiveStep = vm.toNumber(a + 2) >= 0;
-    if (isPositiveStep && vm.compare(a, a + 1, CmpOp.lua_op_le) ||
-        !isPositiveStep && vm.compare(a + 1, a, CmpOp.lua_op_le)) {
+    if (isPositiveStep && vm.compare(a, a + 1, CmpOp.luaOpLe) ||
+        !isPositiveStep && vm.compare(a + 1, a, CmpOp.luaOpLe)) {
       // pc+=sBx; R(A+3)=R(A)
       vm.addPC(sBx);
       vm.copy(a, a + 3);
@@ -285,7 +284,7 @@ class Instructions {
     int c = Instruction.getC(i);
     pushFuncAndArgs(a, 3, vm);
     vm.call(2, c);
-    popResults(a+3, c+1, vm);
+    popResults(a + 3, c + 1, vm);
   }
 
   // if R(A+1) ~= nil then {
@@ -295,7 +294,7 @@ class Instructions {
     int a = Instruction.getA(i) + 1;
     int sBx = Instruction.getSBx(i);
     if (!vm.isNil(a + 1)) {
-      vm.copy(a+1, a);
+      vm.copy(a + 1, a);
       vm.addPC(sBx);
     }
   }
@@ -371,7 +370,7 @@ class Instructions {
     int a = Instruction.getA(i) + 1;
     int b = Instruction.getB(i) + 1;
     int c = Instruction.getC(i);
-    vm.copy(b, a+1);
+    vm.copy(b, a + 1);
     vm.getRK(c);
     vm.getTable(b);
     vm.replace(a);
@@ -389,7 +388,8 @@ class Instructions {
   static void vararg(int i, LuaVM vm) {
     int a = Instruction.getA(i) + 1;
     int b = Instruction.getB(i);
-    if (b != 1) { // b==0 or b>1
+    if (b != 1) {
+      // b==0 or b>1
       vm.loadVararg(b - 1);
       popResults(a, b, vm);
     }
@@ -402,7 +402,7 @@ class Instructions {
     // todo: optimize tail call!
     int c = 0;
     int nArgs = pushFuncAndArgs(a, b, vm);
-    vm.call(nArgs, c-1);
+    vm.call(nArgs, c - 1);
     popResults(a, c, vm);
   }
 
@@ -412,7 +412,7 @@ class Instructions {
     int b = Instruction.getB(i);
     int c = Instruction.getC(i);
     int nArgs = pushFuncAndArgs(a, b, vm);
-    vm.call(nArgs, c-1);
+    vm.call(nArgs, c - 1);
     popResults(a, c, vm);
   }
 
@@ -425,7 +425,7 @@ class Instructions {
     } else if (b > 1) {
       // b-1 return values
       vm.checkStack(b - 1);
-      for (int j = a; j <= a+b-2; j++) {
+      for (int j = a; j <= a + b - 2; j++) {
         vm.pushValue(j);
       }
     } else {
@@ -436,7 +436,7 @@ class Instructions {
   static int pushFuncAndArgs(int a, int b, LuaVM vm) {
     if (b >= 1) {
       vm.checkStack(b);
-      for (int i = a; i < a+b; i++) {
+      for (int i = a; i < a + b; i++) {
         vm.pushValue(i);
       }
       return b - 1;
@@ -454,7 +454,7 @@ class Instructions {
     for (int i = a; i < x; i++) {
       vm.pushValue(i);
     }
-    vm.rotate(vm.registerCount()+1, x-a);
+    vm.rotate(vm.registerCount() + 1, x - a);
   }
 
   static void popResults(int a, int c, LuaVM vm) {
@@ -508,6 +508,6 @@ class Instructions {
   }
 
   static int luaUpvalueIndex(int i) {
-    return lua_registryindex - i;
+    return luaRegistryIndex - i;
   }
 }

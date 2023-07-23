@@ -15,12 +15,10 @@ class LuaTable {
 
   LuaTable(int nArr, int nRec) {
     if (nArr > 0) {
-      // arr = List<Object>(nArr);
       arr = <Object?>[];
     }
     if (nRec > 0) {
-      // map =  Map<Object, Object>(nRec);
-      map =  HashMap<Object?, Object>();
+      map = HashMap<Object?, Object>();
     }
   }
 
@@ -52,7 +50,7 @@ class LuaTable {
     if (key is double && key.isNaN) {
       throw Exception("table index is NaN!");
     }
-
+    changed = true;
     key = floatToInteger(key);
     if (key is int) {
       int idx = key;
@@ -63,7 +61,7 @@ class LuaTable {
 
         int arrLen = arr!.length;
         if (idx <= arrLen) {
-          arr![idx-1] = val;
+          arr![idx - 1] = val;
           if (idx == arrLen && val == null) {
             shrinkArray();
           }
@@ -114,7 +112,7 @@ class LuaTable {
 
   void expandArray() {
     if (map != null) {
-      for (int idx = arr!.length + 1; ; idx++) {
+      for (int idx = arr!.length + 1;; idx++) {
         Object? val = map!.remove(idx);
         if (val != null) {
           arr!.add(val);

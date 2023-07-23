@@ -63,7 +63,7 @@ class Comparison {
       if (b is int) {
         return a <= b;
       } else if (b is double) {
-        return a.compareTo(b) <= 0;;
+        return a.compareTo(b) <= 0;
       }
     }
     if (a is double) {

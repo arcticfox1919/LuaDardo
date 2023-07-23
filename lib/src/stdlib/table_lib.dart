@@ -44,10 +44,10 @@ class TableLib {
       /* otherwise, nothing to move */
       int i;
       ls.argCheck(
-          f > 0 || e < lua_maxinteger + f, 3, "too many elements to move");
+          f > 0 || e < luaMaxInteger + f, 3, "too many elements to move");
       var n = e - f + 1; /* number of elements to move */
-      ls.argCheck(t! <= lua_maxinteger - n + 1, 4, "destination wrap around");
-      if (t > e || t <= f || (tt != 1 && !ls.compare(1, tt, CmpOp.lua_op_eq))) {
+      ls.argCheck(t! <= luaMaxInteger - n + 1, 4, "destination wrap around");
+      if (t > e || t <= f || (tt != 1 && !ls.compare(1, tt, CmpOp.luaOpEq))) {
         for (i = 0; i < n; i++) {
           ls.getI(1, f + i);
           ls.setI(tt, t + i);
@@ -250,7 +250,7 @@ class _SortHelper {
       // cmp is missing
       ls.getI(1, i + 1);
       ls.getI(1, j + 1);
-      var b = ls.compare(-2, -1, CmpOp.lua_op_lt);
+      var b = ls.compare(-2, -1, CmpOp.luaOpLt);
       ls.pop(2);
       return b;
     }

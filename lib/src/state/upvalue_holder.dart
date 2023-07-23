@@ -1,13 +1,11 @@
-
 import 'lua_stack.dart';
 
 class UpvalueHolder {
-
   final int? index;
   LuaStack? stack;
   Object? value;
 
-  UpvalueHolder.value(this.value) :this.index = 0;
+  UpvalueHolder.value(this.value) : this.index = 0;
 
   UpvalueHolder(this.stack, this.index);
 
@@ -29,5 +27,4 @@ class UpvalueHolder {
       stack = null;
     }
   }
-
 }

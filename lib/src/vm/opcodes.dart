@@ -1,15 +1,14 @@
 
 import '../api/lua_vm.dart';
-import 'Instructions.dart';
+import 'instructions.dart';
 
 typedef OpAction = void Function(int i, LuaVM vm);
 
-
 enum OpMode {
-  iABC , // [  B:9  ][  C:9  ][ A:8  ][OP:6]
-  iABx , // [      Bx:18     ][ A:8  ][OP:6]
+  iABC, // [  B:9  ][  C:9  ][ A:8  ][OP:6]
+  iABx, // [      Bx:18     ][ A:8  ][OP:6]
   iAsBx, // [     sBx:18     ][ A:8  ][OP:6]
-  iAx  , // [           Ax:26        ][OP:6]
+  iAx, // [           Ax:26        ][OP:6]
 }
 
 enum OpArgMask {
@@ -69,21 +68,20 @@ enum OpCodeKind {
   EXTRAARG,
 }
 
-class OpCode{
+class OpCode {
+  final int testFlag; // operator is a test (next instruction must be a jump)
+  final int setAFlag; // instruction set register A
+  final OpArgMask argBMode; // B arg mode
+  final OpArgMask argCMode; // C arg mode
+  final OpMode opMode; // op mode
+  final String name;
+  final OpAction? action;
 
-   final int testFlag; // operator is a test (next instruction must be a jump)
-   final int setAFlag; // instruction set register A
-   final OpArgMask argBMode; // B arg mode
-   final OpArgMask argCMode; // C arg mode
-   final OpMode opMode; // op mode
-   final String name;
-   final OpAction? action;
-
-  const OpCode(this.testFlag, this.setAFlag,
-      this.argBMode, this.argCMode,this.opMode,this.name,this.action);
+  const OpCode(this.testFlag, this.setAFlag, this.argBMode, this.argCMode,
+      this.opMode, this.name, this.action);
 }
 
-/// 指令表
+/// Instruction List
 const opCodes = const <OpCode>[
   /*     T  A    B       C     mode         name    */
   OpCode(0, 1, OpArgMask.OpArgR, OpArgMask.OpArgN, OpMode.iABC , "MOVE",Instructions.move), // R(A) := R(B)

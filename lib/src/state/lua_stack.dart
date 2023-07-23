@@ -4,18 +4,19 @@ import 'lua_state_impl.dart';
 import 'lua_table.dart';
 import 'upvalue_holder.dart';
 
-
 class LuaStack {
-
   /// virtual stack
-  final List<Object?> slots =  [];
+  final List<Object?> slots = [];
+
   /// call info
   late LuaStateImpl state;
   Closure? closure;
   List<Object?>? varargs;
   Map<int?, UpvalueHolder?>? openuvs;
+
   /// Program Counter
   int pc = 0;
+
   /// linked list
   LuaStack? prev;
 
@@ -24,7 +25,8 @@ class LuaStack {
   }
 
   void push(Object? val) {
-    if (slots.length > 10000) { // TODO
+    if (slots.length > 10000) {
+      // TODO
       throw StackOverflowError();
     }
     slots.add(val);
@@ -53,17 +55,17 @@ class LuaStack {
   }
 
   int absIndex(int idx) {
-    return idx >= 0 || idx <= lua_registryindex
-        ? idx : idx + slots.length + 1;
+    return idx >= 0 || idx <= luaRegistryIndex ? idx : idx + slots.length + 1;
   }
 
   bool isValid(int idx) {
-    if (idx < lua_registryindex) { /* upvalues */
-      int uvIdx = lua_registryindex - idx - 1;
+    if (idx < luaRegistryIndex) {
+      /* upvalues */
+      int uvIdx = luaRegistryIndex - idx - 1;
       return closure != null && uvIdx < closure!.upvals.length;
     }
 
-    if (idx == lua_registryindex) {
+    if (idx == luaRegistryIndex) {
       return true;
     }
     int absIdx = absIndex(idx);
@@ -71,18 +73,19 @@ class LuaStack {
   }
 
   Object? get(int idx) {
-    if (idx < lua_registryindex) { /* upvalues */
-      int uvIdx = lua_registryindex - idx - 1;
-      if (closure != null
-          && closure!.upvals.length > uvIdx
-          && closure!.upvals[uvIdx] != null) {
+    if (idx < luaRegistryIndex) {
+      /* upvalues */
+      int uvIdx = luaRegistryIndex - idx - 1;
+      if (closure != null &&
+          closure!.upvals.length > uvIdx &&
+          closure!.upvals[uvIdx] != null) {
         return closure!.upvals[uvIdx]!.get();
       } else {
         return null;
       }
     }
 
-    if (idx == lua_registryindex) {
+    if (idx == luaRegistryIndex) {
       return state.registry;
     }
     int absIdx = absIndex(idx);
@@ -94,17 +97,18 @@ class LuaStack {
   }
 
   void set(int idx, Object? val) {
-    if (idx < lua_registryindex) { /* upvalues */
-      int uvIdx = lua_registryindex - idx - 1;
-      if (closure != null
-          && closure!.upvals.length > uvIdx
-          && closure!.upvals[uvIdx] != null) {
+    if (idx < luaRegistryIndex) {
+      /* upvalues */
+      int uvIdx = luaRegistryIndex - idx - 1;
+      if (closure != null &&
+          closure!.upvals.length > uvIdx &&
+          closure!.upvals[uvIdx] != null) {
         closure!.upvals[uvIdx]!.set(val);
       }
       return;
     }
 
-    if (idx == lua_registryindex) {
+    if (idx == luaRegistryIndex) {
       state.registry = (val as LuaTable?);
       return;
     }
@@ -114,11 +118,10 @@ class LuaStack {
 
   void reverse(int from, int to) {
     var obj;
-    for(;from < to;from++,to--){
+    for (; from < to; from++, to--) {
       obj = slots[from];
       slots[from] = slots[to];
       slots[to] = obj;
     }
   }
-
 }

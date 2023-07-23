@@ -6,7 +6,6 @@ import 'closure.dart';
 import 'lua_table.dart';
 
 class LuaValue {
-
   static LuaType typeOf(Object? val) {
     if (val == null) {
       return LuaType.luaNil;
@@ -20,7 +19,7 @@ class LuaValue {
       return LuaType.luaTable;
     } else if (val is Closure) {
       return LuaType.luaFunction;
-    } else if (val is Userdata){
+    } else if (val is Userdata) {
       return LuaType.luaUserdata;
     } else {
       throw Exception("TODO");
@@ -75,5 +74,4 @@ class LuaValue {
     }
     return null;
   }
-
 }

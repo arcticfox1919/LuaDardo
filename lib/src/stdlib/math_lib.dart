@@ -89,7 +89,7 @@ class MathLib{
     var imax = 1;        /* index of current maximum value */
     ls.argCheck(n >= 1, 1, "value expected");
     for (var i = 2; i <= n; i++){
-      if(ls.compare(imax, i, CmpOp.lua_op_lt)){
+      if(ls.compare(imax, i, CmpOp.luaOpLt)){
         imax = i;
       }
     }
@@ -102,7 +102,7 @@ class MathLib{
     var imin = 1;        /* index of current maximum value */
     ls.argCheck(n >= 1, 1, "value expected");
     for (var i = 2; i <= n; i++){
-      if(ls.compare(imin, i, CmpOp.lua_op_lt)){
+      if(ls.compare(imin, i, CmpOp.luaOpLt)){
         imin = i;
       }
     }

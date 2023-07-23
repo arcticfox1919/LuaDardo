@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import '../vm/Instructions.dart';
+import '../vm/instructions.dart';
 
 import '../api/lua_state.dart';
 import '../api/lua_type.dart';
@@ -43,10 +43,10 @@ class PackageLib {
         '$lua_dirsep\n$lua_path_sep\n$lua_path_mark\n$lua_exec_dir\n$lua_igmark\n');
     ls.setField(-2, "config");
     // set field 'loaded'
-    ls.getSubTable(lua_registryindex, lua_loaded_table);
+    ls.getSubTable(luaRegistryIndex, lua_loaded_table);
     ls.setField(-2, "loaded");
     // set field 'preload'
-    ls.getSubTable(lua_registryindex, lua_preload_table);
+    ls.getSubTable(luaRegistryIndex, lua_preload_table);
     ls.setField(-2, "preload");
     ls.pushGlobalTable();
     ls.pushValue(-2); // set 'package' as upvalue for next lib
@@ -69,7 +69,7 @@ class PackageLib {
 
   static int _preloadSearcher(LuaState ls) {
     var name = ls.checkString(1);
-    ls.getField(lua_registryindex, "_PRELOAD");
+    ls.getField(luaRegistryIndex, "_PRELOAD");
 
     if (ls.getField(-1, name) == LuaType.luaNil) {
       /* not found? */
@@ -88,7 +88,7 @@ class PackageLib {
 
     try {
       var filename = _searchPath(name, path, ".", lua_dirsep);
-      if (ls.loadFile(filename) == ThreadStatus.lua_ok) {
+      if (ls.loadFile(filename) == ThreadStatus.luaOk) {
         /* module loaded successfully? */
         ls.pushString(filename); /* will be 2nd argument to module */
         return 2; /* return open function and file name */
@@ -152,7 +152,7 @@ class PackageLib {
   static int _pkgRequire(LuaState ls) {
     var name = ls.checkString(1);
     ls.setTop(1); // LOADED table will be at index 2
-    ls.getField(lua_registryindex, lua_loaded_table);
+    ls.getField(luaRegistryIndex, lua_loaded_table);
     ls.getField(2, name); // LOADED[name]
     if (ls.toBoolean(-1)) {
       // is it there?

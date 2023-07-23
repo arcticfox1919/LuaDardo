@@ -1,8 +1,6 @@
-
 import '../number/lua_math.dart';
 
 class FPB {
-
   /*
      ** converts an integer to a "floating point byte", represented as
      ** (eeeeexxx), where the real value is (1xxx) * 2^(eeeee - 1) if
@@ -13,11 +11,13 @@ class FPB {
     if (x < 8) {
       return x;
     }
-    while (x >= (8 << 4)) { /* coarse steps */
+    while (x >= (8 << 4)) {
+      /* coarse steps */
       x = (x + 0xf) >> 4; /* x = ceil(x / 16) */
       e += 4;
     }
-    while (x >= (8 << 1)) { /* fine steps */
+    while (x >= (8 << 1)) {
+      /* fine steps */
       x = (x + 1) >> 1; /* x = ceil(x / 2) */
       e++;
     }
@@ -29,8 +29,7 @@ class FPB {
     if (x < 8) {
       return x;
     } else {
-      return LuaMath.toInt32(((x & 7) + 8) << ((x>>3)-1));
+      return LuaMath.toInt32(((x & 7) + 8) << ((x >> 3) - 1));
     }
   }
-
 }
