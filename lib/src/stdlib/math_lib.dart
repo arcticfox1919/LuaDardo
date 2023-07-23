@@ -2,6 +2,8 @@
 import 'dart:math' as math;
 import '../../lua.dart';
 
+import 'constants.dart' if (dart.library.html) 'constants_js.dart';
+
 class MathLib{
 
   static const Map<String, DartFunction?> _mathLib = {
@@ -299,5 +301,4 @@ class MathLib{
 
 const rpd = math.pi/180;
 const double ln10 = 2.3025850929940456840179914546843642076011014886288;
-const int int64MinValue = -9223372036854775808;
-const int int64MaxValue = 9223372036854775807;
+
