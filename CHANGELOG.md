@@ -1,3 +1,7 @@
+## 0.0.5
+* Fix issues [#10](https://github.com/arcticfox1919/LuaDardo/issues/10)
+* Fix warning
+
 ## 0.0.4
 * Upgrade null safety
 
