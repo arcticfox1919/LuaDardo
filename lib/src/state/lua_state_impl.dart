@@ -34,10 +34,10 @@ class LuaStateImpl implements LuaState, LuaVM {
   LuaStack? _stack = LuaStack();
 
   /// 注册表
-  LuaTable? registry = LuaTable(0, 0);
+  LuaTable? registry = LuaTable();
 
   LuaStateImpl() {
-    registry!.put(lua_ridx_globals, LuaTable(0, 0));
+    registry!.put(lua_ridx_globals, LuaTable());
     LuaStack stack = LuaStack();
     stack.state = this;
     _pushLuaStack(stack);
@@ -427,7 +427,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void createTable(int nArr, int nRec) {
-    _stack!.push(LuaTable(nArr, nRec));
+    _stack!.push(LuaTable());
   }
 
   @override

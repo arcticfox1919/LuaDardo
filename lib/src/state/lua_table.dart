@@ -1,169 +1,69 @@
-import 'dart:collection';
-
-import '../number/lua_number.dart';
+import 'package:lua_dardo/src/state/table/lua_table_array.dart';
+import 'package:lua_dardo/src/state/table/lua_table_keys.dart';
+import 'package:lua_dardo/src/state/table/lua_table_map.dart';
 
 class LuaTable {
   /// 元表
   LuaTable? metatable;
-  List<Object?>? arr;
-  Map<Object?, Object>? map;
 
-  // used by next()
-  Map<Object?, Object?>? keys;
-  Object? lastKey;
-  late bool changed;
+  final LuaTableArray arr = LuaTableArray();
+  final LuaTableMap map = LuaTableMap();
+  final LuaTableKeys keys = LuaTableKeys();
 
-  LuaTable(int nArr, int nRec) {
-    if (nArr > 0) {
-      // arr = List<Object>(nArr);
-      arr = <Object?>[];
-    }
-    if (nRec > 0) {
-      // map =  Map<Object, Object>(nRec);
-      map =  HashMap<Object?, Object>();
-    }
-  }
-
-  bool hasMetafield(String fieldName) {
-    return metatable != null && metatable!.get(fieldName) != null;
-  }
-
-  int length() {
-    return arr == null ? 0 : arr!.length;
-  }
-
-  Object? get(Object? key) {
-    key = floatToInteger(key);
-
-    if (arr != null && key is int) {
-      int idx = key;
-      if (idx >= 1 && idx <= arr!.length) {
-        return arr![idx - 1];
-      }
-    }
-
-    return map != null ? map![key] : null;
-  }
+  bool hasMetafield(String fieldName) => metatable?.get(fieldName) != null;
 
   void put(Object? key, Object? val) {
     if (key == null) {
       throw Exception("table index is nil!");
     }
+
     if (key is double && key.isNaN) {
       throw Exception("table index is NaN!");
     }
 
-    key = floatToInteger(key);
-    if (key is int) {
-      int idx = key;
-      if (idx >= 1) {
-        if (arr == null) {
-          arr = <Object?>[];
-        }
-
-        int arrLen = arr!.length;
-        if (idx <= arrLen) {
-          arr![idx-1] = val;
-          if (idx == arrLen && val == null) {
-            shrinkArray();
-          }
-          return;
-        }
-        if (idx == arrLen + 1) {
-          if (map != null) {
-            map!.remove(key);
-          }
-          if (val != null) {
-            arr!.add(val);
-            expandArray();
-          }
-          return;
-        }
-      }
-    }
-
-    if (val != null) {
-      if (map == null) {
-        map = HashMap<Object?, Object>();
-      }
-      map![key] = val;
+    if (val == null) {
+      _remove(key);
+    } else if (arr.isArrayIndex(key)) {
+      arr[key] = val;
+    } else if (arr.isArrayIndex(key, forInsert: true)) {
+      arr[key] = val;
+      _expandArray();
     } else {
-      if (map != null) {
-        map!.remove(key);
-      }
+      map[key] = val;
     }
+
+    keys.update(arr.length, map.keys);
   }
 
-  Object? floatToInteger(Object? key) {
-    if (key is double) {
-      double f = key;
-      if (LuaNumber.isInteger(f)) {
-        return f.toInt();
-      }
-    }
-    return key;
-  }
-
-  void shrinkArray() {
-    for (int i = arr!.length - 1; i >= 0; i--) {
-      if (arr![i] == null) {
-        arr!.removeAt(i);
-      }
-    }
-  }
-
-  void expandArray() {
-    if (map != null) {
-      for (int idx = arr!.length + 1; ; idx++) {
-        Object? val = map!.remove(idx);
-        if (val != null) {
-          arr!.add(val);
-        } else {
-          break;
-        }
-      }
-    }
-  }
-
-  Object? nextKey(Object? key) {
-    if (keys == null || (key == null && changed)) {
-      initKeys();
-      changed = false;
-    }
-
-    Object? nextKey = keys![key];
-    if (nextKey == null && key != null && key != lastKey) {
-      throw Exception("invalid key to 'next'");
-    }
-
-    return nextKey;
-  }
-
-  void initKeys() {
-    if (keys == null) {
-      keys = HashMap<Object?, Object?>();
+  void _remove(Object key) {
+    if (arr.isArrayIndex(key)) {
+      arr.removeAt(key);
     } else {
-      keys!.clear();
+      map.remove(key);
     }
-    Object? key = null;
-    if (arr != null) {
-      for (int i = 0; i < arr!.length; i++) {
-        if (arr![i] != null) {
-          int nextKey = i + 1;
-          keys![key] = nextKey;
-          key = nextKey;
-        }
-      }
-    }
-    if (map != null) {
-      for (Object? k in map!.keys) {
-        Object? v = map![k];
-        if (v != null) {
-          keys![key] = k;
-          key = k;
-        }
-      }
-    }
-    lastKey = key;
   }
+
+  void _expandArray() {
+    int key = arr.length + 1;
+    Object? value = map[key];
+    while (value != null) {
+      arr[key] = value;
+      map.remove(key);
+
+      key++;
+      value = map[key];
+    }
+  }
+
+  Object? get(Object? key) {
+    if (key != null) {
+      return (arr.isArrayIndex(key)) ? arr[key] : map[key];
+    }
+    return null;
+  }
+
+  Object? nextKey(Object? key) => keys.nextKey(key);
+
+  int length() => arr.length;
+
 }
