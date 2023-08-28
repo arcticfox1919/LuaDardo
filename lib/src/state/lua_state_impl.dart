@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
@@ -540,7 +541,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  void call(int nArgs, int nResults) {
+  FutureOr<void> call(int nArgs, int nResults) async {
     Object? val = _stack!.get(-(nArgs + 1));
     Object? f = val is Closure ? val : null;
 
@@ -557,16 +558,16 @@ class LuaStateImpl implements LuaState, LuaVM {
     if (f != null) {
       Closure c = f as Closure;
       if (c.proto != null) {
-        _callLuaClosure(nArgs, nResults, c);
+        await _callLuaClosure(nArgs, nResults, c);
       } else {
-        _callDartClosure(nArgs, nResults, c);
+        await _callDartClosure(nArgs, nResults, c);
       }
     } else {
       throw Exception("not function!");
     }
   }
 
-  void _callLuaClosure(int nArgs, int nResults, Closure c) {
+  Future<void> _callLuaClosure(int nArgs, int nResults, Closure c) async {
     int nRegs = c.proto!.maxStackSize;
     int nParams = c.proto!.numParams!;
     bool isVararg = c.proto!.isVararg == 1;
@@ -586,7 +587,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     // run closure
     _pushLuaStack(newStack);
     setTop(nRegs);
-    _runLuaClosure();
+    await _runLuaClosure();
     _popLuaStack();
 
     // return results
@@ -597,7 +598,7 @@ class LuaStateImpl implements LuaState, LuaVM {
     }
   }
 
-  void _callDartClosure(int nArgs, int nResults, Closure c) {
+  Future<void> _callDartClosure(int nArgs, int nResults, Closure c) async {
     // create new lua stack
     LuaStack newStack = new LuaStack(/*nRegs+LUA_MINSTACK*/);
     newStack.state = this;
@@ -611,7 +612,18 @@ class LuaStateImpl implements LuaState, LuaVM {
 
     // run closure
     _pushLuaStack(newStack);
-    int r = c.dartFunc!.call(this);
+    int r;
+    final res = c.dartFunc!.call(this);
+    print("Dart res is:$res");
+    if (res is Future) {
+      print("awaiting res");
+      r = (await res) as int;
+      print("awaited res:$r");
+    } else {
+      r = res as int;
+      print("r from res sync");
+    }
+
     _popLuaStack();
 
     // return results
@@ -622,11 +634,14 @@ class LuaStateImpl implements LuaState, LuaVM {
     }
   }
 
-  void _runLuaClosure() {
+  Future<void> _runLuaClosure() async {
     for (;;) {
       int i = fetch();
       OpCode opCode = Instruction.getOpCode(i);
-      opCode.action!.call(i, this);
+      final r = opCode.action!.call(i, this);
+      if (r is Future) {
+        await r;
+      }      
       if (opCode.name == "RETURN") {
         break;
       }
@@ -635,9 +650,8 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   ThreadStatus load(Uint8List chunk, String chunkName, String? mode) {
-    Prototype proto = BinaryChunk.isBinaryChunk(chunk)
-        ? BinaryChunk.unDump(chunk)
-        : Compiler.compile(utf8.decode(chunk), chunkName);
+    Prototype proto =
+        BinaryChunk.isBinaryChunk(chunk) ? BinaryChunk.unDump(chunk) : Compiler.compile(utf8.decode(chunk), chunkName);
     Closure closure = Closure(proto);
     _stack!.push(closure);
     if (proto.upvalues.length > 0) {
@@ -924,14 +938,12 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   bool doFile(String filename) {
-    return loadFile(filename) == ThreadStatus.luaOk &&
-        pCall(0, luaMultret, 0) == ThreadStatus.luaOk;
+    return loadFile(filename) == ThreadStatus.luaOk && pCall(0, luaMultret, 0) == ThreadStatus.luaOk;
   }
 
   @override
   bool doString(String str) {
-    return loadString(str) == ThreadStatus.luaOk &&
-        pCall(0, luaMultret, 0) == ThreadStatus.luaOk;
+    return loadString(str) == ThreadStatus.luaOk && pCall(0, luaMultret, 0) == ThreadStatus.luaOk;
   }
 
   @override
@@ -1148,8 +1160,7 @@ class LuaStateImpl implements LuaState, LuaVM {
         default:
           LuaType tt = getMetafield(idx, "__name");
           /* try name */
-          String? kind =
-              tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
+          String? kind = tt == LuaType.luaString ? checkString(-1) : typeName2(idx);
           pushString("$kind: ${toPointer(idx).hashCode}");
           if (tt != LuaType.luaNil) {
             remove(-2); /* remove '__name' */
@@ -1275,8 +1286,7 @@ class LuaStateImpl implements LuaState, LuaVM {
 
   @override
   void loadVararg(int n) {
-    List<Object?>? varargs =
-        _stack!.varargs != null ? _stack!.varargs : const <Object>[];
+    List<Object?>? varargs = _stack!.varargs != null ? _stack!.varargs : const <Object>[];
     if (n < 0) {
       n = varargs!.length;
     }

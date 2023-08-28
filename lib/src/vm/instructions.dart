@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../api/lua_state.dart';
 import '../api/lua_type.dart';
 import '../api/lua_vm.dart';
@@ -407,12 +409,12 @@ class Instructions {
   }
 
   // R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1))
-  static void call(int i, LuaVM vm) {
+  static FutureOr<void> call(int i, LuaVM vm) async {
     int a = Instruction.getA(i) + 1;
     int b = Instruction.getB(i);
     int c = Instruction.getC(i);
     int nArgs = pushFuncAndArgs(a, b, vm);
-    vm.call(nArgs, c - 1);
+    await Future.value(vm.call(nArgs, c - 1));
     popResults(a, c, vm);
   }
 

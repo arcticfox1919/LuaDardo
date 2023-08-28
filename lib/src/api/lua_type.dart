@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'lua_state.dart';
 
 /// basic ypes
@@ -51,4 +53,4 @@ enum ThreadStatus {
   luaErrFile,
 }
 
-typedef DartFunction = int Function(LuaState ls);
+typedef DartFunction = FutureOr<int> Function(LuaState ls);

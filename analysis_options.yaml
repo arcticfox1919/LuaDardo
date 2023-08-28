@@ -1,0 +1,18 @@
+# This file configures the static analysis results for your project (errors,
+# warnings, and lints).
+#
+# This enables the 'recommended' set of lints from `package:lints`.
+# This set helps identify many issues that may lead to problems when running
+# or consuming Dart code, and enforces writing Dart using a single, idiomatic
+# style and format.
+include: package:lints/recommended.yaml
+
+analyzer:
+  strong-mode:
+    # implicit-casts: false
+    # implicit-dynamic: false
+
+linter:
+  rules:
+    - unawaited_futures
+    - await_only_futures

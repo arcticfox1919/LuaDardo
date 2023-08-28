@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import '../state/lua_userdata.dart';
@@ -144,7 +145,7 @@ abstract class LuaBasicAPI {
 /* 'load' and 'call' functions (load and run Lua code) */
   ThreadStatus load(Uint8List chunk, String chunkName, String? mode);
 
-  void call(int nArgs, int nResults);
+  FutureOr<void> call(int nArgs, int nResults);
 
   ThreadStatus pCall(int nArgs, int nResults, int msgh);
 

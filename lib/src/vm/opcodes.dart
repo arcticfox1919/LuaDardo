@@ -1,8 +1,9 @@
+import 'dart:async';
 
 import '../api/lua_vm.dart';
 import 'instructions.dart';
 
-typedef OpAction = void Function(int i, LuaVM vm);
+typedef OpAction = FutureOr<void> Function(int i, LuaVM vm);
 
 enum OpMode {
   iABC, // [  B:9  ][  C:9  ][ A:8  ][OP:6]
