@@ -612,18 +612,8 @@ class LuaStateImpl implements LuaState, LuaVM {
 
     // run closure
     _pushLuaStack(newStack);
-    int r;
-    final res = c.dartFunc!.call(this);
-    print("Dart res is:$res");
-    if (res is Future) {
-      print("awaiting res");
-      r = (await res) as int;
-      print("awaited res:$r");
-    } else {
-      r = res as int;
-      print("r from res sync");
-    }
-
+    int r = await Future.value(c.dartFunc!.call(this));
+    
     _popLuaStack();
 
     // return results
@@ -1024,7 +1014,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   @override
   void newLib(Map l) {
     newLibTable(l);
-    setFuncs(l as Map<String, int Function(LuaState)?>, 0);
+    setFuncs(l as Map<String, FutureOr<int> Function(LuaState)?>, 0);
   }
 
   @override
@@ -1033,7 +1023,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  void openLibs() {
+  Future<void> openLibs() async {
     Map<String, DartFunction> libs = <String, DartFunction>{
       "_G": BasicLib.openBaseLib,
       "package": PackageLib.openPackageLib,
@@ -1042,11 +1032,11 @@ class LuaStateImpl implements LuaState, LuaVM {
       "math": MathLib.openMathLib,
       "os": OSLib.openOSLib
     };
-
-    libs.forEach((name, fun) {
-      requireF(name, fun, true);
+    
+    for (final entry in libs.entries) {
+      await requireF(entry.key, entry.value, true);
       pop(1);
-    });
+    }
   }
 
   @override
@@ -1071,7 +1061,7 @@ class LuaStateImpl implements LuaState, LuaVM {
   }
 
   @override
-  void requireF(String modname, openf, bool glb) {
+  FutureOr<void> requireF(String modname, openf, bool glb) async {
     getSubTable(luaRegistryIndex, "_LOADED");
     getField(-1, modname); /* LOADED[modname] */
     if (!toBoolean(-1)) {
@@ -1079,7 +1069,7 @@ class LuaStateImpl implements LuaState, LuaVM {
       pop(1); /* remove field */
       pushDartFunction(openf);
       pushString(modname); /* argument to open function */
-      call(1, 1); /* call 'openf' to open module */
+      await call(1, 1); /* call 'openf' to open module */
       pushValue(-1); /* make copy of module (call result) */
       setField(-3, modname); /* _LOADED[modname] = module */
     }

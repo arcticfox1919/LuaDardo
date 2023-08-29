@@ -54,7 +54,7 @@ abstract class LuaAuxLib {
 
   bool callMeta(int obj, String e);
 
-  void openLibs();
+  Future<void> openLibs();
 
   int ref (int t);
   void unRef (int t, int ref);

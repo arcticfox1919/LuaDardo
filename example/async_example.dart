@@ -3,13 +3,11 @@ import 'dart:io';
 
 import 'package:lua_dardo/lua.dart';
 
-void main(List<String> args) {
+void main(List<String> args) async {
   print("Starting");
+  final chunk = await File("example/async_example.lua").readAsString();
 
-  // final chunk = await File("example/infinite.lua").readAsString();
-  final chunk = File("example/infinite.lua").readAsStringSync();
-
-  LuaWorker(
+  await LuaWorker(
     chunk: chunk,
     data: {"input": ""},
   ).run();
@@ -20,16 +18,22 @@ class LuaWorker {
   final String chunk;
   final Map<String, dynamic> data;
 
+  final _ready = Completer();
+
   LuaWorker({required this.chunk, required this.data}) {
     ls = LuaState.newState();
 
-    ls.openLibs(); // allow all std Lua libs
+    ls.openLibs().then((value) {
+      ls.register('sleep', luaSleep);
+      ls.register('dprint', luaPrint);
 
-    ls.register('sleep', luaSleep);
-    ls.register('dprint', luaPrint);
+      _ready.complete();
+    }); // allow all std Lua libs
   }
 
   Future<void> run() async {
+    await _ready.future;
+
     for (final d in data.keys) {
       final val = data[d];
       if (val is String) {
