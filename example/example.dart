@@ -1,9 +1,8 @@
 import 'package:lua_dardo/lua.dart';
 
-
-void main(List<String> arguments) {
+void main(List<String> arguments) async {
   LuaState state = LuaState.newState();
-  state.openLibs();
+  await state.openLibs();
   state.loadString(r'''
 a=10
 while( a < 20 ) do
@@ -11,5 +10,5 @@ while( a < 20 ) do
    a = a+1
 end
 ''');
-  state.call(0, 0);
+  await state.call(0, 0);
 }
