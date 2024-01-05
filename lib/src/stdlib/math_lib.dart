@@ -1,38 +1,36 @@
-
 import 'dart:math' as math;
-import '../../lua.dart';
 
+import '../../lua.dart';
 import 'constants.dart' if (dart.library.html) 'constants_js.dart';
 
-class MathLib{
-
+class MathLib {
   static const Map<String, DartFunction?> _mathLib = {
-    "random":     _random,
+    "random": _random,
     "randomseed": _randomseed,
-    "max":        _max,
-    "min":        _min,
-    "exp":        _exp,
-    "log":        _log,
-    "deg":        _deg,
-    "rad":        _rad,
-    "sin":        _sin,
-    "cos":        _cos,
-    "tan":        _tan,
-    "asin":       _asin,
-    "acos":       _acos,
-    "atan":       _atan,
-    "ceil":       _ceil,
-    "floor":      _floor,
-    "fmod":       _fmod,
-    "modf":       _modf,
-    "abs":        _abs,
-    "sqrt":       _sqrt,
-    "ult":        _ult,
-    "tointeger":  _tointeger,
-    "type":       _type,
+    "max": _max,
+    "min": _min,
+    "exp": _exp,
+    "log": _log,
+    "deg": _deg,
+    "rad": _rad,
+    "sin": _sin,
+    "cos": _cos,
+    "tan": _tan,
+    "asin": _asin,
+    "acos": _acos,
+    "atan": _atan,
+    "ceil": _ceil,
+    "floor": _floor,
+    "fmod": _fmod,
+    "modf": _modf,
+    "abs": _abs,
+    "sqrt": _sqrt,
+    "ult": _ult,
+    "tointeger": _tointeger,
+    "type": _type,
     /* placeholders */
-    "pi":         null,
-    "huge":       null,
+    "pi": null,
+    "huge": null,
     "maxinteger": null,
     "mininteger": null,
   };
@@ -50,13 +48,12 @@ class MathLib{
     return 1;
   }
 
-
   static var rng = new math.Random();
 
   static int _random(LuaState ls) {
     var low, up;
-    switch(ls.getTop()){
-      case 0:   /* no arguments */
+    switch (ls.getTop()) {
+      case 0: /* no arguments */
         ls.pushNumber(rng.nextDouble()); /* Number between 0 and 1 */
         return 1;
       case 1:
@@ -74,7 +71,7 @@ class MathLib{
     ls.argCheck(low <= up, 1, "interval is empty");
     ls.argCheck(low >= 0, 1, "interval too large");
 
-    ls.pushInteger(low + rng.nextInt(up-low));
+    ls.pushInteger(low + rng.nextInt(up - low + 1)); // Add 1 to the upper limit
     return 1;
   }
 
@@ -84,12 +81,12 @@ class MathLib{
     return 0;
   }
 
-  static int _max(LuaState ls){
+  static int _max(LuaState ls) {
     var n = ls.getTop(); /* number of arguments */
-    var imax = 1;        /* index of current maximum value */
+    var imax = 1; /* index of current maximum value */
     ls.argCheck(n >= 1, 1, "value expected");
-    for (var i = 2; i <= n; i++){
-      if(ls.compare(imax, i, CmpOp.luaOpLt)){
+    for (var i = 2; i <= n; i++) {
+      if (ls.compare(imax, i, CmpOp.luaOpLt)) {
         imax = i;
       }
     }
@@ -97,12 +94,12 @@ class MathLib{
     return 1;
   }
 
-  static int _min(LuaState ls){
+  static int _min(LuaState ls) {
     var n = ls.getTop(); /* number of arguments */
-    var imin = 1;        /* index of current maximum value */
+    var imin = 1; /* index of current maximum value */
     ls.argCheck(n >= 1, 1, "value expected");
-    for (var i = 2; i <= n; i++){
-      if(ls.compare(imin, i, CmpOp.luaOpLt)){
+    for (var i = 2; i <= n; i++) {
+      if (ls.compare(imin, i, CmpOp.luaOpLt)) {
         imin = i;
       }
     }
@@ -110,17 +107,17 @@ class MathLib{
     return 1;
   }
 
-  static int _exp(LuaState ls){
+  static int _exp(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.pow(math.e, x) as double);
     return 1;
   }
 
-  static int _log(LuaState ls){
+  static int _log(LuaState ls) {
     var x = ls.checkNumber(1);
     var res;
 
-    if(ls.isNoneOrNil(2)){
+    if (ls.isNoneOrNil(2)) {
       res = math.log(x!);
     } else {
       var base = ls.toNumber(2);
@@ -128,9 +125,9 @@ class MathLib{
       //   res = log2(x);
       // } else
       if (base == 10) {
-        res = math.log(x!)/ln10;
+        res = math.log(x!) / ln10;
       } else {
-        res = math.log(x!)/math.log(base);
+        res = math.log(x!) / math.log(base);
       }
     }
 
@@ -138,66 +135,67 @@ class MathLib{
     return 1;
   }
 
-  static int _deg(LuaState ls){
+  static int _deg(LuaState ls) {
     var x = ls.checkNumber(1)!;
-    ls.pushNumber(x/rpd);
+    ls.pushNumber(x / rpd);
     return 1;
   }
 
-  static int _rad(LuaState ls){
+  static int _rad(LuaState ls) {
     var x = ls.checkNumber(1)!;
-    ls.pushNumber(x*rpd);
+    ls.pushNumber(x * rpd);
     return 1;
   }
 
-  static int _sin(LuaState ls){
+  static int _sin(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.sin(x));
     return 1;
   }
 
-  static int _cos(LuaState ls){
+  static int _cos(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.cos(x));
     return 1;
   }
 
-  static int _tan(LuaState ls){
+  static int _tan(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.tan(x));
     return 1;
   }
 
-  static int _asin(LuaState ls){
+  static int _asin(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.asin(x));
     return 1;
   }
 
-  static int _acos(LuaState ls){
+  static int _acos(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.acos(x));
     return 1;
   }
 
-  static int _atan(LuaState ls){
+  static int _atan(LuaState ls) {
     var y = ls.checkNumber(1)!;
     var x = ls.optNumber(2, 1.0)!;
     ls.pushNumber(math.atan2(y, x));
     return 1;
   }
 
-  static _pushNumInt(LuaState ls,double d) {
+  static _pushNumInt(LuaState ls, double d) {
     var i = d.toInt();
-    if (d - i.toDouble() == 0){ /* does 'd' fit in an integer? */
+    if (d - i.toDouble() == 0) {
+      /* does 'd' fit in an integer? */
       ls.pushInteger(i); /* result is integer */
     } else {
-      ls.pushNumber(d);  /* result is float */
+      ls.pushNumber(d); /* result is float */
     }
   }
 
-  static int _ceil(LuaState ls){
-    if(ls.isInteger(1)){
+  static int _ceil(LuaState ls) {
+    if (ls.isInteger(1)) {
       ls.setTop(1); /* integer is its own ceil */
     } else {
       double x = ls.checkNumber(1)!;
@@ -206,8 +204,8 @@ class MathLib{
     return 1;
   }
 
-  static int _floor(LuaState ls){
-    if(ls.isInteger(1)){
+  static int _floor(LuaState ls) {
+    if (ls.isInteger(1)) {
       ls.setTop(1); /* integer is its own floor */
     } else {
       double x = ls.checkNumber(1)!;
@@ -234,21 +232,21 @@ class MathLib{
     return 1;
   }
 
-  static int _modf(LuaState ls){
-    if (ls.isInteger(1)){
-      ls.setTop(1);     /* number is its own integer part */
+  static int _modf(LuaState ls) {
+    if (ls.isInteger(1)) {
+      ls.setTop(1); /* number is its own integer part */
       ls.pushNumber(0); /* no fractional part */
     } else {
       var x = ls.checkNumber(1)!;
       var o = x.floor();
       ls.pushInteger(o);
-      ls.pushNumber(x-o);
+      ls.pushNumber(x - o);
     }
     return 1;
   }
 
-  static int _abs(LuaState ls){
-    if (ls.isInteger(1)){
+  static int _abs(LuaState ls) {
+    if (ls.isInteger(1)) {
       var x = ls.toInteger(1);
       if (x < 0) {
         ls.pushInteger(-x);
@@ -260,22 +258,22 @@ class MathLib{
     return 1;
   }
 
-  static int _sqrt(LuaState ls){
+  static int _sqrt(LuaState ls) {
     var x = ls.checkNumber(1)!;
     ls.pushNumber(math.sqrt(x));
     return 1;
   }
 
-  static int _ult(LuaState ls){
+  static int _ult(LuaState ls) {
     var m = ls.checkInteger(1)!;
     var n = ls.checkInteger(2)!;
     ls.pushBoolean(m < n);
     return 1;
   }
 
-  static int _tointeger(LuaState ls){
+  static int _tointeger(LuaState ls) {
     var i = ls.toIntegerX(1);
-    if (i != null){
+    if (i != null) {
       ls.pushInteger(i);
     } else {
       ls.checkAny(1);
@@ -299,6 +297,5 @@ class MathLib{
   }
 }
 
-const rpd = math.pi/180;
+const rpd = math.pi / 180;
 const double ln10 = 2.3025850929940456840179914546843642076011014886288;
-
