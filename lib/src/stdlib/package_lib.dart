@@ -18,7 +18,20 @@ const lua_exec_dir = "!";
 const lua_igmark = "-";
 
 class PackageLib {
-  static final lua_dirsep = Platform.pathSeparator;
+  static get lua_dirsep {
+    try {
+      return Platform.pathSeparator;
+    }
+    catch (e) {
+      if (e is UnsupportedError) {
+        // For flutter web
+        return "/";
+      }
+      else {
+        throw e;
+      }
+    }
+  }
 
   static const Map<String, DartFunction?> _pkgFuncs = {
     "searchpath": _pkgSearchPath,
